@@ -1,3 +1,4 @@
-from GUI_Main_page.py import build_main_page
+from GUI_Main_page import build_main_page
+
 
 build_main_page()
