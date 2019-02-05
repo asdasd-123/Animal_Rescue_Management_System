@@ -1,4 +1,5 @@
-from GUI_Main_page import build_main_page
+from GUI_Main_page import Build_main_window, Display_main_window
 
 
-build_main_page()
+Build_main_window()
+Display_main_window()
