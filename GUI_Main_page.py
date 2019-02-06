@@ -91,12 +91,11 @@ class Build_main_window(object):
         purple_frame.configure("purple.TFrame", background="purple")
         white_frame = ttk.Style()
         white_frame.configure("white.TFrame", background="white")
-        
 
         # ==================
         # Tab 1 styles
         # ==================
-        
+
         # ==================
         # Tab 2 styles
         # ==================
@@ -136,7 +135,7 @@ class Build_main_window(object):
         logo_frame = ttk.Frame(header, width="150", height="160")
         logo_frame.pack_propagate(0)
         logo_frame.pack(side="right")
-        
+
         # Load logo and create label for it
         logo_im = Image.open("catlogo.png")
         logo_ph = ImageTk.PhotoImage(logo_im)
