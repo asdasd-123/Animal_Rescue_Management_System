@@ -133,13 +133,13 @@ class Build_main_window(object):
 
         # Logo Frame. Contains the logo picture
         logo = ttk.Frame(header, width="150", height="150", style="blue.TFrame")
+        logo.pack_propagate(0)
         logo.pack(side="right")
-        logo.grid_propagate(0)
-        # logo_im = Image.open("logo.png")
-        # logo_ph = ImageTk.PhotoImage(logo_im)
-        # logo_img = ttk.Label(logo, image=logo_ph)
-        # logo_img.image = logo_ph
-        # logo_img.pack(side="right")
+        logo_im = Image.open("logo.png")
+        logo_ph = ImageTk.PhotoImage(logo_im)
+        logo_img = ttk.Label(logo, image=logo_ph)
+        logo_img.image = logo_ph
+        logo_img.pack(side="right")
 
         # Header/Filter Frame
         header_filter = ttk.Frame(header, padding="10")
