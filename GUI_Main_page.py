@@ -12,6 +12,7 @@ root = tkinter.Tk()
 
 # Remove this after database is setup.
 # For testing purposes only at the moment.
+main_search_headings = ["ID", "Name", "Chip No. ", "Vaccinated"]
 main_search_data = [
     ("1", "Cookie", "7493732", "42005"),
     ("2", "Gibbie", "7342152", "42038"),
@@ -59,6 +60,9 @@ class Build_main_window(object):
     def _Setup_fonts(self):
         # Title Font settings
         self.font_title = tkinter.font.Font(size=30, weight='bold')
+
+        # Search box font
+        self.font_search = tkinter.font.Font(size=15)
 
     def _Setup_window(self):
         # Get and read config
@@ -119,7 +123,7 @@ class Build_main_window(object):
         note = ttk.Notebook(root)
 
         # Setup the tab frames
-        self.tab1 = ttk.Frame(note, style="tab1.TFrame")
+        self.tab1 = ttk.Frame(note)
         self.tab2 = ttk.Frame(note, style="tab2.TFrame")
         self.tab3 = ttk.Frame(note, style="tab3.TFrame")
 
@@ -136,32 +140,83 @@ class Build_main_window(object):
         header = ttk.Frame(self.tab1)
         header.pack(side="top", fill="x")
 
-        # Logo Frame. Contains the logo picture
+        # - Logo Frame. Contains the logo picture
         logo_frame = ttk.Frame(header, width="150", height="160")
         logo_frame.pack_propagate(0)
         logo_frame.pack(side="right")
 
-        # Load logo and create label for it
+        # -- Load logo and create label for it
         logo_im = Image.open("catlogo.png")
         logo_ph = ImageTk.PhotoImage(logo_im)
         logo_img = ttk.Label(logo_frame, image=logo_ph)
         logo_img.image = logo_ph
         logo_img.pack(side="top")
 
-        # Header/Filter Frame
+        # - Header/Filter Frame
         header_filter = ttk.Frame(header, padding="10")
         header_filter.pack(side="left", expand=True, fill="both")
 
-        # Title Label
+        # -- Title Label
         title = ttk.Label(header_filter, text=self.window_title)
         title['font'] = self.font_title
         title.pack(side="top", anchor="w")
 
-        # Filters LabelFrame
+        # -- Filters LabelFrame
         filters = ttk.LabelFrame(header_filter, text="Filters")
         filters.pack(side="bottom", anchor="sw", expand=True, fill="both")
 
-        main_search_headings = ["ID", "Name", "Chip No. ", "Vaccinated"]
+        # Tree/Search Frame
+        tree_search_frame = ttk.Frame(self.tab1, style="blue.TFrame")
+        tree_search_frame.pack(expand=True, fill="both")
+        
+        # - Search Frame
+        search_frame = ttk.Frame(tree_search_frame, style="yellow.TFrame")
+        search_frame.pack(side="top", fill="x")
+
+        # -- Filling the search Frame with search boxes
+        # -- ID search box
+        search_id_frame = ttk.Frame(search_frame,
+                                    width="100",
+                                    height="40",
+                                    padding="5")
+        search_id_frame.pack_propagate(0)
+        search_id_frame.pack(side="left")
+        search_id = ttk.Entry(search_id_frame, exportselection=0)
+        search_id['font'] = self.font_search
+        search_id.pack(side="left", expand=True, fill="both")
+
+        # -- Name search box
+        search_name_frame = ttk.Frame(search_frame,
+                                      width="120",
+                                      height="40",
+                                      padding="5")
+        search_name_frame.pack_propagate(0)
+        search_name_frame.pack(side="left")
+        search_name = ttk.Entry(search_name_frame, exportselection=0)
+        search_name['font'] = self.font_search
+        search_name.pack(side="left", expand=True, fill="both")
+
+        # -- Chip Number search box
+        search_chipno_frame = ttk.Frame(search_frame,
+                                        width="220",
+                                        height="40",
+                                        padding="5")
+        search_chipno_frame.pack_propagate(0)
+        search_chipno_frame.pack(side="left")
+        search_chipno = ttk.Entry(search_chipno_frame, exportselection=0)
+        search_chipno['font'] = self.font_search
+        search_chipno.pack(side="left", expand=True, fill="both")
+
+        # -- Vaccinated search box
+        search_vaccinate_frame = ttk.Frame(search_frame,
+                                           width="120",
+                                           height="40",
+                                           padding="5")
+        search_vaccinate_frame.pack_propagate(0)
+        search_vaccinate_frame.pack(side="left")
+        search_vaccinate = ttk.Entry(search_vaccinate_frame, exportselection=0)
+        search_vaccinate['font'] = self.font_search
+        search_vaccinate.pack(side="left", expand=True, fill="both")
 
 
 def Display_main_window():
