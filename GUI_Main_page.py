@@ -48,12 +48,13 @@ main_search_data = [
 
 
 class Build_main_window(object):
+    """Builds the main window"""
     def __init__(self):
         self._Setup_window()
         self._Setup_fonts()
         self._Setup_styles()
-        self._Setup_tabs()
-        self._Setup_tab_1()
+        self._Setup_tabs()      # Setting up tabs (notebook) widget
+        self._Setup_tab_1()     # Setting up tab1 (Dashboard) widgets
 
     def _Setup_fonts(self):
         # Title Font settings
@@ -63,10 +64,14 @@ class Build_main_window(object):
         # Get and read config
         config = configparser.ConfigParser()
         config.read('Config/config.ini')
+
+        # Set window title to name from config
         self.window_title = config['DEFAULT'].get('rescuename',
                                                   'Rescue name not set up yet')
         root_wm_title = self.window_title
         root.wm_title(root_wm_title)
+
+        # Set window size on launch
         root.geometry("1024x768")
 
     def _Setup_styles(self):
@@ -93,7 +98,7 @@ class Build_main_window(object):
         white_frame.configure("white.TFrame", background="white")
 
         # ==================
-        # Tab 1 styles
+        # Tab 1 (Dashboard) styles
         # ==================
 
         # ==================
@@ -119,11 +124,11 @@ class Build_main_window(object):
         self.tab3 = ttk.Frame(note, style="tab3.TFrame")
 
         # Asign the above frames to tabs
-        note.add(self.tab1, text="  Animals  ")
+        note.add(self.tab1, text="  Dashboard  ")
         note.add(self.tab2, text="Tab two")
         note.add(self.tab3, text="Tab three")
 
-        # Packing the note.
+        # Packing the tabs widget to fill screen.
         note.pack(fill="both", expand=True)
 
     def _Setup_tab_1(self):
