@@ -168,7 +168,7 @@ class Build_main_window(object):
         # Tree/Search Frame
         tree_search_frame = ttk.Frame(self.tab1, style="blue.TFrame")
         tree_search_frame.pack(expand=True, fill="both")
-        
+
         # - Search Frame
         search_frame = ttk.Frame(tree_search_frame, style="yellow.TFrame")
         search_frame.pack(side="top", fill="x")
