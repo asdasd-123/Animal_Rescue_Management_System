@@ -182,7 +182,9 @@ class Build_main_window(object):
         search_id_frame.pack_propagate(0)
         search_id_frame.pack(side="left")
         search_id = ttk.Entry(search_id_frame, exportselection=0)
-        search_id.bind("<Key>", lambda char: ptest("ID"))
+        search_id.bind(
+            "<Key>",
+            lambda char: tree_search(self.tree, "ID", search_id.get()))
         search_id['font'] = self.font_search
         search_id.pack(side="left", expand=True, fill="both")
 
@@ -259,8 +261,9 @@ class Build_main_window(object):
 def display_main_window():
     root.mainloop()
 
-def ptest(char_pressed):
-    print(char_pressed)
+
+def tree_search(tree, col, contents):
+    print(contents)
 
 
 def sort_by(tree, col, descending):
@@ -277,5 +280,6 @@ def sort_by(tree, col, descending):
         tree.move(item[1], '', index)
 
     # Switch the heading so that it will sort in the opposite order direction
-    tree.heading(col,
+    tree.heading(
+        col,
         command=lambda col=col: sort_by(tree, col, int(not descending)))
