@@ -12,17 +12,17 @@ root = tkinter.Tk()
 
 # Remove this after database is setup.
 # For testing purposes only at the moment.
-main_search_headings = ("ID", "Name", "Chip No. ", "Vaccinated")
+main_search_headings = ["ID", "Name", "Chip No. ", "Vaccinated"]
 main_search_data = [
-    ("1", "Cookie", "7493732", "42005"),
-    ("2", "Gibbie", "7342152", "42038"),
-    ("3", "Tinkerbelle", "1681023", "42071"),
-    ("4", "Wispa", "6369268", "42104"),
-    ("5", "Pebbles", "4362464", "42137"),
-    ("6", "Tatsiana", "5674374", "42170"),
-    ("7", "Cookiea", "9076052", "42203"),
-    ("8", "Gibbiea", "6237524", "42236"),
-    ("9", "Tinkerbellea", "6159266", "42269"),
+    ("01", "Cookie", "7493732", "42005"),
+    ("02", "Gibbie", "7342152", "42038"),
+    ("03", "Tinkerbelle", "1681023", "42071"),
+    ("04", "Wispa", "6369268", "42104"),
+    ("05", "Pebbles", "4362464", "42137"),
+    ("06", "Tatsiana", "5674374", "42170"),
+    ("07", "Cookiea", "9076052", "42203"),
+    ("08", "Gibbiea", "6237524", "42236"),
+    ("09", "Tinkerbellea", "6159266", "42269"),
     ("10", "Wispaa", "1521653", "42302"),
     ("11", "Pebblesa", "8150588", "42335"),
     ("12", "Tatsianaa", "1505322", "42368"),
@@ -183,8 +183,13 @@ class Build_main_window(object):
         search_id_frame.pack(side="left")
         search_id = ttk.Entry(search_id_frame, exportselection=0)
         search_id.bind(
-            "<Key>",
-            lambda char: tree_search(self.tree, "ID", search_id.get()))
+            "<KeyRelease>",
+            lambda char: tree_search(
+                self.tree,
+                main_search_data,
+                main_search_headings,
+                "ID",
+                search_id.get()))
         search_id['font'] = self.font_search
         search_id.pack(side="left", expand=True, fill="both")
 
@@ -196,6 +201,14 @@ class Build_main_window(object):
         search_name_frame.pack_propagate(0)
         search_name_frame.pack(side="left")
         search_name = ttk.Entry(search_name_frame, exportselection=0)
+        search_name.bind(
+            "<KeyRelease>",
+            lambda char: tree_search(
+                self.tree,
+                main_search_data,
+                main_search_headings,
+                "Name",
+                search_name.get()))
         search_name['font'] = self.font_search
         search_name.pack(side="left", expand=True, fill="both")
 
@@ -207,6 +220,14 @@ class Build_main_window(object):
         search_chipno_frame.pack_propagate(0)
         search_chipno_frame.pack(side="left")
         search_chipno = ttk.Entry(search_chipno_frame, exportselection=0)
+        search_chipno.bind(
+            "<KeyRelease>",
+            lambda char: tree_search(
+                self.tree,
+                main_search_data,
+                main_search_headings,
+                "Chip No. ",
+                search_chipno.get()))
         search_chipno['font'] = self.font_search
         search_chipno.pack(side="left", expand=True, fill="both")
 
@@ -218,6 +239,14 @@ class Build_main_window(object):
         search_vaccinate_frame.pack_propagate(0)
         search_vaccinate_frame.pack(side="left")
         search_vaccinate = ttk.Entry(search_vaccinate_frame, exportselection=0)
+        search_vaccinate.bind(
+            "<KeyRelease>",
+            lambda char: tree_search(
+                self.tree,
+                main_search_data,
+                main_search_headings,
+                "Vaccinated",
+                search_vaccinate.get()))
         search_vaccinate['font'] = self.font_search
         search_vaccinate.pack(side="left", expand=True, fill="both")
 
@@ -262,8 +291,28 @@ def display_main_window():
     root.mainloop()
 
 
-def tree_search(tree, col, contents):
-    print(contents)
+def tree_search(tree, ds, dh, col_st, st):
+    """tree     - tree to adjust
+       ds       - data set to search
+       dh       - data headings to find which col number
+       col_st   - column string to check against headings
+       st       - text in search box"""
+    # If search str empty, use full data set.
+    # Slightly more efficient as it avoids the search
+    if st == '':
+        tree.delete(*tree.get_children())   # Delete all items in tree
+        for row in ds:                      # Build up tree with new data
+            tree.insert('', 'end', values=row)
+        return
+
+    col = dh.index(col_st)
+    new_data = []   # List to store new filtered list
+    for row in ds:  # Build new filtered list
+        if (row[col].upper()).__contains__(st.upper()):
+            new_data.append(row)
+    tree.delete(*tree.get_children())   # Delete all items currently in tree
+    for row in new_data:                # Build up tree with new data
+        tree.insert('', 'end', values=row)
 
 
 def sort_by(tree, col, descending):
