@@ -292,7 +292,9 @@ def display_main_window():
 
 
 def tree_search(tree, ds, dh, col_st, st):
-    """tree     - tree to adjust
+    """Will search through any tree or column for a specific string.
+       The following must be supplied:
+       tree     - tree to adjust
        ds       - data set to search
        dh       - data headings to find which col number
        col_st   - column string to check against headings
