@@ -12,8 +12,8 @@ root = tkinter.Tk()
 
 # Remove this after database is setup.
 # For testing purposes only at the moment.
-main_search_headings = ["ID", "Name", "Chip No. ", "Vaccinated"]
-main_search_data = [
+main_search_headings = ("ID", "Name", "Chip No. ", "Vaccinated")
+main_search_data = (
     ("01", "Cookie", "7493732", "42005"),
     ("02", "Gibbie", "7342152", "42038"),
     ("03", "Tinkerbelle", "1681023", "42071"),
@@ -45,7 +45,7 @@ main_search_data = [
     ("29", "Pebblesaaaa", "2554880", "42929"),
     ("30", "Tatsianaaaaa", "7180502", "42962"),
     ("31", "Cookieaaaaa", "9735914", "42995")
-    ]
+    )
 
 
 class Build_main_window(object):
