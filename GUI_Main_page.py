@@ -6,6 +6,7 @@ import tkinter
 import tkinter.font
 import tkinter.ttk as ttk
 import configparser
+from TreeBuild import TreeBuild
 from PIL import Image, ImageTk
 
 root = tkinter.Tk()
@@ -13,6 +14,7 @@ root = tkinter.Tk()
 # Remove this after database is setup.
 # For testing purposes only at the moment.
 main_search_headings = ("ID", "Name", "Chip No. ", "Vaccinated")
+main_search_widths = (100, 120, 220, 120)
 main_search_data = (
     ("01", "Cookie", "7493732", "42005"),
     ("02", "Gibbie", "7342152", "42038"),
@@ -169,168 +171,12 @@ class Build_main_window(object):
         tree_search_frame = ttk.Frame(self.tab1)
         tree_search_frame.pack(expand=True, fill="both")
 
-        # - Search Frame
-        search_frame = ttk.Frame(tree_search_frame)
-        search_frame.pack(side="top", fill="x")
-
-        # -- Filling the search Frame with search boxes
-        # -- ID search box
-        search_id_frame = ttk.Frame(search_frame,
-                                    width="100",
-                                    height="40",
-                                    padding="5")
-        search_id_frame.pack_propagate(0)
-        search_id_frame.pack(side="left")
-        search_id = ttk.Entry(search_id_frame, exportselection=0)
-        search_id.bind(
-            "<KeyRelease>",
-            lambda char: tree_search(
-                self.tree,
-                main_search_data,
-                main_search_headings,
-                "ID",
-                search_id.get()))
-        search_id['font'] = self.font_search
-        search_id.pack(side="left", expand=True, fill="both")
-
-        # -- Name search box
-        search_name_frame = ttk.Frame(search_frame,
-                                      width="120",
-                                      height="40",
-                                      padding="5")
-        search_name_frame.pack_propagate(0)
-        search_name_frame.pack(side="left")
-        search_name = ttk.Entry(search_name_frame, exportselection=0)
-        search_name.bind(
-            "<KeyRelease>",
-            lambda char: tree_search(
-                self.tree,
-                main_search_data,
-                main_search_headings,
-                "Name",
-                search_name.get()))
-        search_name['font'] = self.font_search
-        search_name.pack(side="left", expand=True, fill="both")
-
-        # -- Chip Number search box
-        search_chipno_frame = ttk.Frame(search_frame,
-                                        width="220",
-                                        height="40",
-                                        padding="5")
-        search_chipno_frame.pack_propagate(0)
-        search_chipno_frame.pack(side="left")
-        search_chipno = ttk.Entry(search_chipno_frame, exportselection=0)
-        search_chipno.bind(
-            "<KeyRelease>",
-            lambda char: tree_search(
-                self.tree,
-                main_search_data,
-                main_search_headings,
-                "Chip No. ",
-                search_chipno.get()))
-        search_chipno['font'] = self.font_search
-        search_chipno.pack(side="left", expand=True, fill="both")
-
-        # -- Vaccinated search box
-        search_vaccinate_frame = ttk.Frame(search_frame,
-                                           width="120",
-                                           height="40",
-                                           padding="5")
-        search_vaccinate_frame.pack_propagate(0)
-        search_vaccinate_frame.pack(side="left")
-        search_vaccinate = ttk.Entry(search_vaccinate_frame, exportselection=0)
-        search_vaccinate.bind(
-            "<KeyRelease>",
-            lambda char: tree_search(
-                self.tree,
-                main_search_data,
-                main_search_headings,
-                "Vaccinated",
-                search_vaccinate.get()))
-        search_vaccinate['font'] = self.font_search
-        search_vaccinate.pack(side="left", expand=True, fill="both")
-
-        # - Tree frame
-        tree_frame = ttk.Frame(tree_search_frame)
-        tree_frame.pack(side="top", expand=True, fill="both")
-
-        # - Creating the blank Treeview
-        self.tree = ttk.Treeview(columns=main_search_headings,
-                                 show="headings",
-                                 selectmode="browse")
-        vsb = ttk.Scrollbar(orient="vertical", command=self.tree.yview)
-        self.tree.configure(yscrollcommand=vsb.set)
-        self.tree.grid(column=0, row=0, sticky="nsew", in_=tree_frame)
-        vsb.grid(column=1, row=0, sticky="ns", in_=tree_frame)
-
-        tree_frame.grid_columnconfigure(0, weight=1)
-        tree_frame.grid_rowconfigure(0, weight=1)
-
-        # - Setting Tree column widths and alignments
-        self.tree.heading("ID", text="ID", anchor="w",
-                          command=lambda c="ID": sort_by(self.tree, c, 0))
-        self.tree.column("ID", width="100", anchor="w", stretch="No")
-
-        self.tree.heading("Name", text="Name", anchor="w",
-                          command=lambda c="Name": sort_by(self.tree, c, 0))
-        self.tree.column("Name", width="120", anchor="w", stretch="No")
-
-        self.tree.heading("Chip No. ", text="Chip No. ", anchor="w",
-                          command=lambda c="Chip No. ": sort_by(self.tree, c, 0))
-        self.tree.column("Chip No. ", width="220", anchor="w", stretch="No")
-
-        self.tree.heading("Vaccinated", text="Vaccinated", anchor="w")
-        self.tree.column("Vaccinated", width="120", anchor="w", stretch="No")
-
-        # - Entering data into Tree
-        for item in main_search_data:
-            self.tree.insert('', 'end', values=item)
+        tree_frame = TreeBuild(tree_search_frame,
+                               search=True,
+                               data=main_search_data,
+                               widths=main_search_widths,
+                               headings=main_search_headings)
 
 
 def display_main_window():
     root.mainloop()
-
-
-def tree_search(tree, ds, dh, col_st, st):
-    """Will search through any tree or column for a specific string.
-       The following must be supplied:
-       tree     - tree to adjust
-       ds       - data set to search
-       dh       - data headings to find which col number
-       col_st   - column string to check against headings
-       st       - text in search box"""
-    # If search str empty, use full data set.
-    # Slightly more efficient as it avoids the search
-    if st == '':
-        tree.delete(*tree.get_children())   # Delete all items in tree
-        for row in ds:                      # Build up tree with new data
-            tree.insert('', 'end', values=row)
-        return
-
-    col = dh.index(col_st)
-    new_data = []   # List to store new filtered list
-    for row in ds:  # Build new filtered list
-        if (row[col].upper()).__contains__(st.upper()):
-            new_data.append(row)
-    tree.delete(*tree.get_children())   # Delete all items currently in tree
-    for row in new_data:                # Build up tree with new data
-        tree.insert('', 'end', values=row)
-
-
-def sort_by(tree, col, descending):
-    """Sort tree column when clicked on.
-       Send it Tree, column, and order."""
-    # Grab values to sort
-    data = [(tree.set(child, col), child) for child in tree.get_children('')]
-
-    # Re-order the data
-    data.sort(reverse=descending)
-
-    # Update the tree with new order.
-    for index, item in enumerate(data):
-        tree.move(item[1], '', index)
-
-    # Switch the heading so that it will sort in the opposite order direction
-    tree.heading(
-        col,
-        command=lambda col=col: sort_by(tree, col, int(not descending)))
