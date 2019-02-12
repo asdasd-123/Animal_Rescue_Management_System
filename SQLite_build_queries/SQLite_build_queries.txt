@@ -1,0 +1,79 @@
+===============================================
+Table Animal:
+===============================================
+CREATE TABLE Animal (
+    ID       INTEGER      PRIMARY KEY ASC AUTOINCREMENT
+                          UNIQUE
+                          NOT NULL,
+    Name     VARCHAR (50) NOT NULL,
+    Chip_Num VARCHAR (50) UNIQUE,
+    Sex      VARCHAR (50) NOT NULL,
+    Notes    TEXT
+);
+
+
+===============================================
+Table Neutering:
+===============================================
+CREATE TABLE Neutering (
+    ID        INTEGER       PRIMARY KEY ASC AUTOINCREMENT
+                            UNIQUE
+                            NOT NULL,
+    Animal_ID INT           UNIQUE
+                            REFERENCES Animal (ID),
+    Date      DATE          NOT NULL,
+    Type      INT           NOT NULL,
+    Vet       VARCHAR (255) NOT NULL,
+    Cost      DECIMAL
+);
+
+
+===============================================
+Table Vaccinate:
+===============================================
+CREATE TABLE Vaccinate (
+    ID        INTEGER       PRIMARY KEY ASC AUTOINCREMENT
+                            UNIQUE
+                            NOT NULL,
+    Animal_ID INT           UNIQUE
+                            REFERENCES Animal (ID),
+    Date      DATE          NOT NULL,
+    Next_Due  DATE          NOT NULL,
+    Type      INT           NOT NULL,
+    Vet       VARCHAR (255) NOT NULL,
+    Cost      DECIMAL
+);
+
+
+===============================================
+Table Medical_Other:
+===============================================
+CREATE TABLE Medical_Other (
+    ID          INTEGER       PRIMARY KEY ASC AUTOINCREMENT
+                              UNIQUE
+                              NOT NULL,
+    Animal_ID   INT           UNIQUE
+                              REFERENCES Animal (ID),
+    Date        DATE          NOT NULL,
+    Vet         VARCHAR (255) NOT NULL,
+    Cost        DECIMAL,
+    Description TEXT          NOT NULL
+);
+
+===============================================
+Table Homing:
+===============================================
+CREATE TABLE Homing (
+    ID                     INTEGER       PRIMARY KEY ASC AUTOINCREMENT
+                                         UNIQUE
+                                         NOT NULL,
+    Animal_ID              INT           UNIQUE
+                                         REFERENCES Animal (ID),
+    Date                   DATE          NOT NULL,
+    Description            TEXT          NOT NULL,
+    Delivered_Or_Collected VARCHAR (10)  NOT NULL,
+    Name                   VARCHAR (255) NOT NULL,
+    Address                VARCHAR (255) NOT NULL,
+    Postcode               VARCHAR (10)  NOT NULL,
+    Phone_Number           TEXT (11) 
+);

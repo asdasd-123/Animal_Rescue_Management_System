@@ -2,57 +2,19 @@
 Builds the main page of the rescue screen
 """
 # Imports
-import tkinter
-import tkinter.font
+import tkinter as tk
+import tkinter.font as tkfont
 import tkinter.ttk as ttk
 import configparser
 from TreeBuild import TreeBuild
 from PIL import Image, ImageTk
 
-root = tkinter.Tk()
 
-# Remove this after database is setup.
-# For testing purposes only at the moment.
-main_search_headings = ("ID", "Name", "Chip No. ", "Vaccinated")
-main_search_widths = (100, 120, 220, 120)
-main_search_data = (
-    ("01", "Cookie", "7493732", "42005"),
-    ("02", "Gibbie", "7342152", "42038"),
-    ("03", "Tinkerbelle", "1681023", "42071"),
-    ("04", "Wispa", "6369268", "42104"),
-    ("05", "Pebbles", "4362464", "42137"),
-    ("06", "Tatsiana", "5674374", "42170"),
-    ("07", "Cookiea", "9076052", "42203"),
-    ("08", "Gibbiea", "6237524", "42236"),
-    ("09", "Tinkerbellea", "6159266", "42269"),
-    ("10", "Wispaa", "1521653", "42302"),
-    ("11", "Pebblesa", "8150588", "42335"),
-    ("12", "Tatsianaa", "1505322", "42368"),
-    ("13", "Cookieaa", "4445858", "42401"),
-    ("14", "Gibbieaa", "6390976", "42434"),
-    ("15", "Tinkerbelleaa", "1968907", "42467"),
-    ("16", "Wispaaa", "1501928", "42500"),
-    ("17", "Pebblesaa", "3430556", "42533"),
-    ("18", "Tatsianaaa", "6453150", "42566"),
-    ("19", "Cookieaaa", "3750061", "42599"),
-    ("20", "Gibbieaaa", "1742287", "42632"),
-    ("21", "Tinkerbelleaaa", "7138771", "42665"),
-    ("22", "Wispaaaa", "4020316", "42698"),
-    ("23", "Pebblesaaa", "6514509", "42731"),
-    ("24", "Tatsianaaaa", "1438670", "42764"),
-    ("25", "Cookieaaaa", "1151414", "42797"),
-    ("26", "Gibbieaaaa", "8535522", "42830"),
-    ("27", "Tinkerbelleaaaa", "4106620", "42863"),
-    ("28", "Wispaaaaa", "4390267", "42896"),
-    ("29", "Pebblesaaaa", "2554880", "42929"),
-    ("30", "Tatsianaaaaa", "7180502", "42962"),
-    ("31", "Cookieaaaaa", "9735914", "42995")
-    )
-
-
-class Build_main_window(object):
+class build_main_window():
     """Builds the main window"""
-    def __init__(self):
+    def __init__(self, master, conn):
+        self.master = master
+        self.conn = conn
         self._Setup_window()
         self._Setup_fonts()
         self._Setup_styles()
@@ -67,18 +29,18 @@ class Build_main_window(object):
         # Set window title to name from config
         self.window_title = config['DEFAULT'].get('rescuename',
                                                   'Rescue name not set up yet')
-        root_wm_title = self.window_title
-        root.wm_title(root_wm_title)
+        wm_title = self.window_title
+        self.master.wm_title(wm_title)
 
         # Set window size on launch
-        root.geometry("1024x768")
+        self.master.geometry("1024x768")
 
     def _Setup_fonts(self):
         # Title Font settings
-        self.font_title = tkinter.font.Font(size=30, weight='bold')
+        self.font_title = tkfont.Font(size=30, weight='bold')
 
         # Search box font
-        self.font_search = tkinter.font.Font(size=12)
+        self.font_search = tkfont.Font(size=12)
 
     def _Setup_styles(self):
         # ==================
@@ -102,6 +64,24 @@ class Build_main_window(object):
         purple_frame.configure("purple.TFrame", background="purple")
         white_frame = ttk.Style()
         white_frame.configure("white.TFrame", background="white")
+        blue_label = ttk.Style()
+        blue_label.configure("blue.TLabel", background="blue")
+        green_label = ttk.Style()
+        green_label.configure("green.TLabel", background="green")
+        red_label = ttk.Style()
+        red_label.configure("red.TLabel", background="red")
+        yellow_label = ttk.Style()
+        yellow_label.configure("yellow.TLabel", background="yellow")
+        pink_label = ttk.Style()
+        pink_label.configure("pink.TLabel", background="pink")
+        brown_label = ttk.Style()
+        brown_label.configure("brown.TLabel", background="brown")
+        grey_label = ttk.Style()
+        grey_label.configure("grey.TLabel", background="grey")
+        purple_label = ttk.Style()
+        purple_label.configure("purple.TLabel", background="purple")
+        white_label = ttk.Style()
+        white_label.configure("white.TLabel", background="white")
 
         # ==================
         # Tab 1 (Dashboard) styles
@@ -122,7 +102,7 @@ class Build_main_window(object):
         tab3_style.configure("tab3.TFrame", background="blue")
 
     def _Setup_tabs(self):
-        note = ttk.Notebook(root)
+        note = ttk.Notebook(self.master)
 
         # Setup the tab frames
         self.tab1 = ttk.Frame(note)
@@ -171,12 +151,129 @@ class Build_main_window(object):
         tree_search_frame = ttk.Frame(self.tab1)
         tree_search_frame.pack(expand=True, fill="both")
 
-        tree_frame = TreeBuild(tree_search_frame,
-                               search=True,
-                               data=main_search_data,
-                               widths=main_search_widths,
-                               headings=main_search_headings)
+        # Get tree data and build tree (main data=md)
+        md_query = "SELECT * FROM Main_Page_View"
+        md = basic_db_query(self.conn, md_query)
+        main_tree = TreeBuild(tree_search_frame,
+                              search=True,
+                              data=md[1],
+                              # widths=main_search_widths,
+                              headings=md[0])
+        main_tree.tree.bind(
+            "<Double-1>",
+            lambda c: self.open_animal_window(
+                main_tree.tree.item(main_tree.tree.focus())))
+
+    def open_animal_window(self, row_selected):
+        animal_id = row_selected['values'][0]
+        animal_window(tk.Toplevel(self.master), self.conn, animal_id)
 
 
-def display_main_window():
-    root.mainloop()
+class animal_window():
+    def __init__(self, master, conn, animal_id=""):
+        self.conn = conn
+        self.master = master
+        self.master.geometry("1680x900")
+        self.animal_id = animal_id
+        self._Setup_fonts()
+        self._build_frames()
+        self._build_widgets()
+        print("Building animal window")
+
+    def _Setup_fonts(self):
+        # Title Font settings
+        self.font_title = tkfont.Font(size=30, weight='bold')
+
+    def _build_frames(self):
+        # Right Frame
+        self.right_frame = ttk.Frame(self.master, width="300", style="green.TFrame")
+        self.right_frame.pack(side="right", fill="both")
+
+        # - Image frame
+        self.image_frame = ttk.Frame(self.right_frame, width="300", height="300", style="yellow.TFrame")
+        self.image_frame.pack(side="top", fill="x")
+
+        # Left frame
+        self.left_frame = ttk.Frame(self.master, style="blue.TFrame")
+        self.left_frame.pack(side="left", expand=True, fill="both")
+
+        # - Title frame
+        self.title_frame = ttk.Frame(self.left_frame, style="grey.TFrame")
+        self.title_frame.pack(side="top", fill="x", ipady=10)
+
+        # - Data frame (for dob, colour etc)
+        self.data_frame = ttk.Frame(self.left_frame)
+        self.data_frame.pack(side="top", fill="x")
+
+        # -- Setting column list
+        self.data_col = []
+        # -- Column setup
+        self.col_padd = 5
+        self.col_paddl = self.col_padd + 1
+        num_of_cols = 2     # Increase to add columns.
+        for col in range(num_of_cols):
+            self.data_col.insert(col, [0, 1])
+            self.data_col[col][0] = ttk.Frame(self.data_frame)
+            self.data_col[col][0].pack(side="left", ipadx=5, anchor="n")
+            self.data_col[col][1] = ttk.Frame(self.data_frame)
+            self.data_col[col][1].pack(side="left", ipadx=5, anchor="n")
+
+        # - Central frame
+        self.central_frame = ttk.Frame(self.left_frame, style="brown.TFrame")
+        self.central_frame.pack(side="top", fill="both", expand=True)
+
+    def _build_widgets(self):
+        # - Title Label
+        self.title = ttk.Label(
+            self.title_frame,
+            text=self.animal_id,
+            font=self.font_title)
+        self.title.pack(side="top", fill="x")
+
+        # - Column 0 items
+        # - DOB known
+        self.dob_known_0 = ttk.Label(self.data_col[0][0], text="DOB known?: ", anchor="w")
+        self.dob_known_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.dob_known_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('N', 'Y'))
+        self.dob_known_1.pack(side="top", anchor="w", pady=self.col_padd)
+
+        # - Date of birth
+        self.dob_0 = ttk.Label(self.data_col[0][0], text="Date of Birth (DD/MM/YYYY): ")
+        self.dob_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.dob_1 = ttk.Entry(self.data_col[0][1], text="25 Jan 2018")
+        self.dob_1.pack(side="top", anchor="w", pady=self.col_padd)
+
+        # - Colour
+        self.colour_0 = ttk.Label(self.data_col[0][0], text="Colour: ")
+        self.colour_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.colour_1 = ttk.Entry(self.data_col[0][1], text="temp")
+        self.colour_1.pack(side="top", anchor="w", pady=self.col_padd)
+
+        # - Sex
+        self.sex_0 = ttk.Label(self.data_col[0][0], text="Sex: ", anchor="w")
+        self.sex_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.sex_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('UNKNOWN', 'M', 'F'))
+        self.sex_1.pack(side="top", anchor="w", pady=self.col_padd)
+
+        # - Column 0 items
+        # - Chip Number
+        self.chip_num_0 = ttk.Label(self.data_col[1][0], text="Chip Number: ")
+        self.chip_num_0.pack(side="top", anchor="w", ipady=self.col_padd)
+        self.chip_num_1 = ttk.Entry(self.data_col[1][1], text="temp")
+        self.chip_num_1.pack(side="top", anchor="w", pady=self.col_padd)
+
+
+def basic_db_query(conn, query):  # (sqlmd gonig forward)
+    """Runs SQL query on connection and returns results as list.
+    list[0] = list of headings
+    list[1] = list(column) of lists(rows) of data"""
+    with conn:
+        c = conn.cursor()
+        c.execute(query)
+        query_info = []
+        query_info.append([desc[0] for desc in c.description])
+        query_info.append(c.fetchall())
+        return query_info
+
+# def display_animal_window():
+#     root_a.mainloop()
