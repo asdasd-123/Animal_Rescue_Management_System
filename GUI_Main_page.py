@@ -193,6 +193,14 @@ class animal_window():
         self.image_frame = ttk.Frame(self.right_frame, width="300", height="300", style="yellow.TFrame")
         self.image_frame.pack(side="top", fill="x")
 
+        # - Notes header frame
+        self.note_header_frame = ttk.Frame(self.right_frame, style="blue.TFrame")
+        self.note_header_frame.pack(side="top", fill="x")
+
+        # - Notes frame
+        self.notes_frame = ttk.Frame(self.right_frame, style="pink.TFrame")
+        self.notes_frame.pack(side="top", fill="x", anchor="n")
+
         # Left frame
         self.left_frame = ttk.Frame(self.master, style="blue.TFrame")
         self.left_frame.pack(side="left", expand=True, fill="both")
@@ -230,6 +238,18 @@ class animal_window():
             font=self.font_title)
         self.title.pack(side="top", fill="x")
 
+        # - Notes label
+        self.notes_l = ttk.Label(self.note_header_frame, text="Notes:", anchor="n")
+        self.notes_l.pack(side="top", fill="x",)
+
+        # - Notes text box
+        notes_scroll = tk.Scrollbar(self.notes_frame)
+        self.note_text = tk.Text(self.notes_frame)
+        notes_scroll.pack(side="right", fill="y")
+        self.note_text.pack(side="right")
+        notes_scroll.config(command=self.note_text.yview)
+        self.note_text.config(yscrollcommand=notes_scroll.set)
+
         # - Column 0 items
         # - DOB known
         self.dob_known_0 = ttk.Label(self.data_col[0][0], text="DOB known?: ", anchor="w")
@@ -240,13 +260,13 @@ class animal_window():
         # - Date of birth
         self.dob_0 = ttk.Label(self.data_col[0][0], text="Date of Birth (DD/MM/YYYY): ")
         self.dob_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.dob_1 = ttk.Entry(self.data_col[0][1], text="25 Jan 2018")
+        self.dob_1 = ttk.Entry(self.data_col[0][1])
         self.dob_1.pack(side="top", anchor="w", pady=self.col_padd)
 
         # - Colour
         self.colour_0 = ttk.Label(self.data_col[0][0], text="Colour: ")
         self.colour_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.colour_1 = ttk.Entry(self.data_col[0][1], text="temp")
+        self.colour_1 = ttk.Entry(self.data_col[0][1])
         self.colour_1.pack(side="top", anchor="w", pady=self.col_padd)
 
         # - Sex
@@ -259,7 +279,7 @@ class animal_window():
         # - Chip Number
         self.chip_num_0 = ttk.Label(self.data_col[1][0], text="Chip Number: ")
         self.chip_num_0.pack(side="top", anchor="w", ipady=self.col_padd)
-        self.chip_num_1 = ttk.Entry(self.data_col[1][1], text="temp")
+        self.chip_num_1 = ttk.Entry(self.data_col[1][1])
         self.chip_num_1.pack(side="top", anchor="w", pady=self.col_padd)
 
 
