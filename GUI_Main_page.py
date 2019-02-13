@@ -8,7 +8,8 @@ import tkinter.ttk as ttk
 import configparser
 from TreeBuild import TreeBuild
 from PIL import Image, ImageTk
-
+from tkcalendar import Calendar
+from datetime import datetime
 
 class build_main_window():
     """Builds the main window"""
@@ -173,12 +174,16 @@ class animal_window():
     def __init__(self, master, conn, animal_id=""):
         self.conn = conn
         self.master = master
+        self.master.withdraw()  # Hide window
         self.master.geometry("1680x900")
         self.animal_id = animal_id
         self._Setup_fonts()
         self._build_frames()
         self._build_widgets()
+        if animal_id != "":
+            self._populate_data(conn, self.animal_id)
         print("Building animal window")
+        self.master.deiconify() # Show window
 
     def _Setup_fonts(self):
         # Title Font settings
@@ -226,17 +231,32 @@ class animal_window():
             self.data_col[col][1] = ttk.Frame(self.data_frame)
             self.data_col[col][1].pack(side="left", ipadx=5, anchor="n")
 
+        # -- Dob column
+        self.dob_col = ttk.Frame(self.data_frame)
+        self.dob_col.pack(side="left", ipadx=5, anchor="n")
+
+        # --- Dob known holding frame
+        self.dob_holding_frame = ttk.Frame(self.dob_col)
+        self.dob_holding_frame.pack(side="top", anchor="n", fill="x")
+        # ---- Dob known frames
+        self.dob_known_col = [0, 1]
+        self.dob_known_col[0] = ttk.Frame(self.dob_holding_frame)
+        self.dob_known_col[0].pack(side="left", ipadx=5, anchor="n")
+        self.dob_known_col[1] = ttk.Frame(self.dob_holding_frame)
+        self.dob_known_col[1].pack(side="left", ipadx=5, anchor="n")
+
         # - Central frame
         self.central_frame = ttk.Frame(self.left_frame, style="brown.TFrame")
         self.central_frame.pack(side="top", fill="both", expand=True)
 
     def _build_widgets(self):
-        # - Title Label
-        self.title = ttk.Label(
+        # - Title Labels
+        self.id_label = ttk.Label(
             self.title_frame,
-            text=self.animal_id,
             font=self.font_title)
-        self.title.pack(side="top", fill="x")
+        self.id_label.pack(side="left", padx=5)
+        self.name_entry = ttk.Entry(self.title_frame, font=self.font_title)
+        self.name_entry.pack(side="left")
 
         # - Notes label
         self.notes_l = ttk.Label(self.note_header_frame, text="Notes:", anchor="n")
@@ -244,25 +264,13 @@ class animal_window():
 
         # - Notes text box
         notes_scroll = tk.Scrollbar(self.notes_frame)
-        self.note_text = tk.Text(self.notes_frame)
+        self.note_text = tk.Text(self.notes_frame, width="34")
         notes_scroll.pack(side="right", fill="y")
         self.note_text.pack(side="right")
         notes_scroll.config(command=self.note_text.yview)
         self.note_text.config(yscrollcommand=notes_scroll.set)
 
         # - Column 0 items
-        # - DOB known
-        self.dob_known_0 = ttk.Label(self.data_col[0][0], text="DOB known?: ", anchor="w")
-        self.dob_known_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.dob_known_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('N', 'Y'))
-        self.dob_known_1.pack(side="top", anchor="w", pady=self.col_padd)
-
-        # - Date of birth
-        self.dob_0 = ttk.Label(self.data_col[0][0], text="Date of Birth (DD/MM/YYYY): ")
-        self.dob_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.dob_1 = ttk.Entry(self.data_col[0][1])
-        self.dob_1.pack(side="top", anchor="w", pady=self.col_padd)
-
         # - Colour
         self.colour_0 = ttk.Label(self.data_col[0][0], text="Colour: ")
         self.colour_0.pack(side="top", anchor="w", ipady=self.col_paddl)
@@ -272,18 +280,93 @@ class animal_window():
         # - Sex
         self.sex_0 = ttk.Label(self.data_col[0][0], text="Sex: ", anchor="w")
         self.sex_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.sex_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('UNKNOWN', 'M', 'F'))
+        self.sex_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('Unknown', 'Male', 'Female'))
         self.sex_1.pack(side="top", anchor="w", pady=self.col_padd)
 
-        # - Column 0 items
-        # - Chip Number
-        self.chip_num_0 = ttk.Label(self.data_col[1][0], text="Chip Number: ")
+        # - Chip number
+        self.chip_num_0 = ttk.Label(self.data_col[0][0], text="Chip Number: ")
         self.chip_num_0.pack(side="top", anchor="w", ipady=self.col_padd)
-        self.chip_num_1 = ttk.Entry(self.data_col[1][1])
+        self.chip_num_1 = ttk.Entry(self.data_col[0][1])
         self.chip_num_1.pack(side="top", anchor="w", pady=self.col_padd)
 
+        # - Hair type
+        self.hair_type_0 = ttk.Label(self.data_col[0][0], text="Hair type: ", anchor="w")
+        self.hair_type_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.hair_type_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('Short Hair', 'Long Hair'))
+        self.hair_type_1.pack(side="top", anchor="w", pady=self.col_padd)
 
-def basic_db_query(conn, query):  # (sqlmd gonig forward)
+        # - Dob columns
+        # - DOB known
+        self.dob_known_0 = ttk.Label(self.dob_known_col[0], text="DOB known?: ", anchor="w")
+        self.dob_known_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.dob_known_1 = ttk.Combobox(self.dob_known_col[1], state='readonly', values=('No', 'Yes', 'Roughly'))
+        self.dob_known_1.pack(side="top", anchor="w", pady=self.col_padd)
+        self.dob_known_1.bind("<<ComboboxSelected>>", self._show_hide_date)
+
+        # - DOB text
+        self.dob_text_0 = ttk.Label(self.dob_known_col[0], text="Date of birth: ", anchor="w")
+        self.dob_text_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        self.dob_text_1 = ttk.Label(self.dob_known_col[1], anchor="w")
+        self.dob_text_1.pack(side="top", anchor="w", ipady=self.col_padd)
+
+        self.dob_cal = Calendar(self.dob_col)
+        self.dob_cal.pack(side="top", anchor="n", fill="x")
+
+
+    def _show_hide_date(self, event):
+        option = self.dob_known_1.get()
+        if option in ("Yes", "Roughly"):
+            self.dob_cal.pack(side="top", anchor="n", fill="x")
+        else:
+            self.dob_cal.pack_forget()
+
+
+        
+            
+
+    def _populate_data(self, conn, id):
+        populate_query = "SELECT * FROM Populate_Animal_Data WHERE ID = :ID"
+        populate_dict = {'ID': id}
+        results = adv_db_query(conn, populate_query, populate_dict)
+        
+        # Update widgets
+        # ID
+        id_text = results[1][0][results[0].index('ID')]
+        self.id_label.configure(text=id_text)
+
+        # Name
+        name_text = results[1][0][results[0].index('Name')]
+        self.name_entry.insert(0, name_text)
+        
+        # Chip num
+        chip_num_text = results[1][0][results[0].index('Chip_Num')]
+        self.chip_num_1.insert(0, chip_num_text)
+
+        # DOB known
+        dob_known_text = results[1][0][results[0].index('DOB_Known')]
+        self.dob_known_1.set(dob_known_text)
+        
+        # Date of birth
+        dob_text = results[1][0][results[0].index('Date_Of_Birth')]
+        new_date = datetime.strptime(dob_text, '%Y-%m-%d')
+        new_date_text = new_date.strftime('%d/%m/%Y')
+        self.dob_cal.selection_set(new_date)
+        self.dob_text_1.configure(text=new_date_text)
+
+        # Sex
+        sex_text = results[1][0][results[0].index('Sex')]
+        self.sex_1.set(sex_text)
+
+        # Colour
+        colour_text = results[1][0][results[0].index('Colour')]
+        self.colour_1.insert(0,colour_text)
+
+        # Hair type
+        hair_type_text = results[1][0][results[0].index('Hair_Type')]
+        self.hair_type_1.set(hair_type_text)
+
+
+def basic_db_query(conn, query):
     """Runs SQL query on connection and returns results as list.
     list[0] = list of headings
     list[1] = list(column) of lists(rows) of data"""
@@ -294,6 +377,21 @@ def basic_db_query(conn, query):  # (sqlmd gonig forward)
         query_info.append([desc[0] for desc in c.description])
         query_info.append(c.fetchall())
         return query_info
+
+
+def adv_db_query(conn, query, dictionary):
+    """Runs SQL query on connection and returns results as list.
+    list[0] = list of headings
+    list[1] = list(column) of lists(rows) of data"""
+    with conn:
+        c = conn.cursor()
+        c.execute(query, dictionary)
+        query_info = []
+        query_info.append([desc[0] for desc in c.description])
+        query_info.append(c.fetchall())
+        return query_info
+
+
 
 # def display_animal_window():
 #     root_a.mainloop()
