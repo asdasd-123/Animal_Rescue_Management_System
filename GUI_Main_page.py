@@ -388,10 +388,10 @@ class animal_window():
         update_dict = {}
 
         # Get values
-        update_dict['Name'] = self.name_entry.get()
-        update_dict['Colour'] = self.colour_1.get()
+        update_dict['Name'] = self.name_entry.get().rstrip()
+        update_dict['Colour'] = self.colour_1.get().rstrip()
         update_dict['Sex'] = self.sex_1.get()
-        update_dict['Chip'] = self.chip_num_1.get()
+        update_dict['Chip'] = self.chip_num_1.get().rstrip()
         update_dict['Hair'] = self.hair_type_1.get()
         update_dict['DobKnown'] = self.dob_known_1.get()
         if update_dict['DobKnown'] != "No":
@@ -400,7 +400,7 @@ class animal_window():
         else:
             temp_date = ""
         update_dict['Dob'] = temp_date
-        update_dict['Notes'] = self.note_text.get('1.0', 'end')
+        update_dict['Notes'] = self.note_text.get('1.0', 'end').rstrip()
 
         if sql_type == "edit":
             update_dict['ID'] = self.id_label.cget('text')
