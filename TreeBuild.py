@@ -231,3 +231,10 @@ class TreeBuild:
         self.data = new_data
         for row in new_data:                # Build up tree with new data
             tree.insert('', 'end', values=row)
+
+    def refresh_data(self, new_data):
+        """Will refresh the data in the tree with a new set provided.
+        Will not affect columns/headings"""
+        self.tree.delete(*self.tree.get_children())
+        for row in new_data:
+            self.tree.insert('', 'end', values=row)

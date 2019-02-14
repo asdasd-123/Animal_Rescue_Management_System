@@ -155,28 +155,34 @@ class build_main_window():
         # Get tree data and build tree (main data=md)
         md_query = "SELECT * FROM Main_Page_View"
         md = basic_db_query(self.conn, md_query)
-        main_tree = TreeBuild(tree_search_frame,
-                              search=True,
-                              data=md[1],
-                              # widths=main_search_widths,
-                              headings=md[0])
-        main_tree.tree.bind(
+        self.main_tree = TreeBuild(tree_search_frame,
+                                   search=True,
+                                   data=md[1],
+                                   # widths=main_search_widths,
+                                   headings=md[0])
+        self.main_tree.tree.bind(
             "<Double-1>",
             lambda c: self.open_animal_window(
-                main_tree.tree.item(main_tree.tree.focus())))
+                self.main_tree.tree.item(self.main_tree.tree.focus())))
+    
+    def refresh_main_tree(self):
+        md_query = "SELECT * FROM Main_Page_View"
+        md = basic_db_query(self.conn, md_query)
+        self.main_tree.refresh_data(md[1])
 
     def open_animal_window(self, row_selected):
         animal_id = row_selected['values'][0]
-        animal_window(tk.Toplevel(self.master), self.conn, window_type="edit", animal_id=animal_id)
+        animal_window(tk.Toplevel(self.master), self.conn, self, window_type="edit", animal_id=animal_id)
 
 
 class animal_window():
-    def __init__(self, master, conn, window_type="new", animal_id=""):
+    def __init__(self, master, conn, main_win, window_type="new", animal_id=""):
         self.conn = conn
         self.master = master
         self.master.withdraw()  # Hide window
         self.master.geometry("1680x900")
         self.animal_id = animal_id
+        self.main_win = main_win
         self.type = window_type
         self._Setup_fonts()
         self._build_frames()
@@ -328,18 +334,53 @@ class animal_window():
         self.dob_cal.pack(side="top", anchor="n", fill="x")
 
         # Cancel / submit / save changes buttons
-        self.cancel = ttk.Button(self.right_button_frame, text="Cancel")
+        self.cancel = ttk.Button(self.right_button_frame, text="Cancel", command=self.close_window)
         self.cancel.pack(side="left", anchor="w", padx=20, pady=10)
         self.submit = ttk.Button(self.left_button_frame, text="Submit")
-        self.save = ttk.Button(self.left_button_frame, text="Save")
+        self.save = ttk.Button(self.left_button_frame, text="Save", command=self.save_changes)
         
         if self.type == "edit":
             self.save.pack(side="right", anchor="e", padx=20, pady=10)
         else:
             self.submit.pack(side="right", anchor="e", padx=20, pady=10)
 
+    def save_changes(self):
+        update_dict = {}
 
+        # Get values
+        update_dict['ID'] = self.id_label.cget('text')
+        update_dict['Name'] = self.name_entry.get()
+        update_dict['Colour'] = self.colour_1.get()
+        update_dict['Sex'] = self.sex_1.get()
+        update_dict['Chip'] = self.chip_num_1.get()
+        update_dict['Hair'] = self.hair_type_1.get()
+        update_dict['DobKnown'] = self.dob_known_1.get()
+        if update_dict['DobKnown'] != "No":
+            temp_date = datetime.strptime(self.dob_cal.get_date(), '%d/%m/%Y')
+            temp_date = temp_date.strftime('%Y-%m-%d')
+        else:
+            temp_date = ""
+        update_dict['Dob'] = temp_date
+        update_dict['Notes'] = self.note_text.get('1.0', 'end')
 
+        sql_query = """UPDATE Animal
+                       SET Name = :Name,
+                       Chip_Num = :Chip,
+                       Date_Of_Birth = :Dob,
+                       DOB_Known = :DobKnown,
+                       Sex = :Sex,
+                       Colour = :Colour,
+                       Hair_Type = :Hair,
+                       Notes = :Notes
+                       WHERE ID = :ID"""
+
+        adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
+        self.close_window()
+        self.main_win.refresh_main_tree()
+        
+
+    def close_window(self):
+        self.master.destroy()
 
     def _show_hide_date(self, event):
         option = self.dob_known_1.get()
@@ -408,18 +449,20 @@ def basic_db_query(conn, query):
         return query_info
 
 
-def adv_db_query(conn, query, dictionary):
+def adv_db_query(conn, query, dictionary, returnlist=True):
     """Runs SQL query on connection and returns results as list.
     list[0] = list of headings
     list[1] = list(column) of lists(rows) of data"""
     with conn:
         c = conn.cursor()
         c.execute(query, dictionary)
-        query_info = []
-        query_info.append([desc[0] for desc in c.description])
-        query_info.append(c.fetchall())
-        return query_info
-
+        if returnlist:
+            query_info = []
+            query_info.append([desc[0] for desc in c.description])
+            query_info.append(c.fetchall())
+            return query_info
+        else:
+            return
 
 
 # def display_animal_window():
