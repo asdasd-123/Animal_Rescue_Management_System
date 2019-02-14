@@ -16,13 +16,14 @@ class build_main_window():
     def __init__(self, master, conn):
         self.master = master
         self.conn = conn
-        self._Setup_window()
-        self._Setup_fonts()
-        self._Setup_styles()
-        self._Setup_tabs()      # Setting up tabs (notebook) widget
-        self._Setup_tab_1()     # Setting up tab1 (Dashboard) widgets
+        self._setup_window()
+        self._setup_fonts()
+        self._setup_styles()
+        self._setup_tabs()          # Setting up tabs (notebook) widget
+        self._setup_tab_1_frames()  # Setting up tab1 (Dashboard) widgets
+        self._setup_tab_1_widgets()
 
-    def _Setup_window(self):
+    def _setup_window(self):
         # Get and read config
         config = configparser.ConfigParser()
         config.read('Config/config.ini')
@@ -36,14 +37,14 @@ class build_main_window():
         # Set window size on launch
         self.master.geometry("1024x768")
 
-    def _Setup_fonts(self):
+    def _setup_fonts(self):
         # Title Font settings
         self.font_title = tkfont.Font(size=30, weight='bold')
 
         # Search box font
         self.font_search = tkfont.Font(size=12)
 
-    def _Setup_styles(self):
+    def _setup_styles(self):
         # ==================
         # Testing Styles
         # ==================
@@ -102,7 +103,7 @@ class build_main_window():
         tab3_style = ttk.Style()
         tab3_style.configure("tab3.TFrame", background="blue")
 
-    def _Setup_tabs(self):
+    def _setup_tabs(self):
         note = ttk.Notebook(self.master)
 
         # Setup the tab frames
@@ -118,44 +119,45 @@ class build_main_window():
         # Packing the tabs widget to fill screen.
         note.pack(fill="both", expand=True)
 
-    def _Setup_tab_1(self):
+    def _setup_tab_1_frames(self):
         # Header Frame. Contains Title, Logo, and tree-filters
-        header = ttk.Frame(self.tab1)
-        header.pack(side="top", fill="x")
+        self.header = ttk.Frame(self.tab1)
+        self.header.pack(side="top", fill="x")
 
         # - Logo Frame. Contains the logo picture
-        logo_frame = ttk.Frame(header, width="150", height="160")
-        logo_frame.pack_propagate(0)
-        logo_frame.pack(side="right")
+        self.logo_frame = ttk.Frame(self.header, width="150", height="160")
+        self.logo_frame.pack_propagate(0)
+        self.logo_frame.pack(side="right")
+
+        # - Header/Filter Frame
+        self.header_filter = ttk.Frame(self.header, padding="10")
+        self.header_filter.pack(side="left", expand=True, fill="both")
+
+        # -- Filters LabelFrame
+        self.buttons_frame = ttk.LabelFrame(self.header_filter)
+        self.buttons_frame.pack(side="bottom", anchor="sw", expand=True, fill="both")
+
+        # Tree/Search Frame
+        self.tree_search_frame = ttk.Frame(self.tab1)
+        self.tree_search_frame.pack(expand=True, fill="both")
+    
+    def _setup_tab_1_widgets(self):
+        # -- Title Label
+        title = ttk.Label(self.header_filter, text=self.window_title)
+        title['font'] = self.font_title
+        title.pack(side="top", anchor="w")
 
         # -- Load logo and create label for it
         logo_im = Image.open("catlogo.png")
         logo_ph = ImageTk.PhotoImage(logo_im)
-        logo_img = ttk.Label(logo_frame, image=logo_ph)
+        logo_img = ttk.Label(self.logo_frame, image=logo_ph)
         logo_img.image = logo_ph
         logo_img.pack(side="top")
-
-        # - Header/Filter Frame
-        header_filter = ttk.Frame(header, padding="10")
-        header_filter.pack(side="left", expand=True, fill="both")
-
-        # -- Title Label
-        title = ttk.Label(header_filter, text=self.window_title)
-        title['font'] = self.font_title
-        title.pack(side="top", anchor="w")
-
-        # -- Filters LabelFrame
-        filters = ttk.LabelFrame(header_filter, text="Filters")
-        filters.pack(side="bottom", anchor="sw", expand=True, fill="both")
-
-        # Tree/Search Frame
-        tree_search_frame = ttk.Frame(self.tab1)
-        tree_search_frame.pack(expand=True, fill="both")
 
         # Get tree data and build tree (main data=md)
         md_query = "SELECT * FROM Main_Page_View"
         md = basic_db_query(self.conn, md_query)
-        self.main_tree = TreeBuild(tree_search_frame,
+        self.main_tree = TreeBuild(self.tree_search_frame,
                                    search=True,
                                    data=md[1],
                                    # widths=main_search_widths,
@@ -164,6 +166,9 @@ class build_main_window():
             "<Double-1>",
             lambda c: self.open_animal_window(
                 self.main_tree.tree.item(self.main_tree.tree.focus())))
+
+
+
     
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"
