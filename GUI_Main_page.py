@@ -167,20 +167,21 @@ class build_main_window():
 
     def open_animal_window(self, row_selected):
         animal_id = row_selected['values'][0]
-        animal_window(tk.Toplevel(self.master), self.conn, animal_id)
+        animal_window(tk.Toplevel(self.master), self.conn, window_type="edit", animal_id=animal_id)
 
 
 class animal_window():
-    def __init__(self, master, conn, animal_id=""):
+    def __init__(self, master, conn, window_type="new", animal_id=""):
         self.conn = conn
         self.master = master
         self.master.withdraw()  # Hide window
         self.master.geometry("1680x900")
         self.animal_id = animal_id
+        self.type = window_type
         self._Setup_fonts()
         self._build_frames()
         self._build_widgets()
-        if animal_id != "":
+        if animal_id != "" and window_type == "edit":
             self._populate_data(conn, self.animal_id)
         print("Building animal window")
         self.master.deiconify() # Show window
@@ -204,8 +205,20 @@ class animal_window():
 
         # - Notes frame
         self.notes_frame = ttk.Frame(self.right_frame, style="pink.TFrame")
-        self.notes_frame.pack(side="top", fill="x", anchor="n")
+        self.notes_frame.pack(side="top", fill="both", anchor="n")
 
+        # - Buttons frame
+        self.buttons_frame = ttk.Frame(self.right_frame, style="blue.TFrame")
+        self.buttons_frame.pack(side="bottom",expand=True, fill="x", anchor="s")
+        
+        # -- Left button frame
+        self.left_button_frame = ttk.Frame(self.buttons_frame, style="yellow.TFrame")
+        self.left_button_frame.pack(side="left", expand=True, fill="both", anchor="w")
+
+        # -- Right button frame
+        self.right_button_frame = ttk.Frame(self.buttons_frame, style="purple.TFrame")
+        self.right_button_frame.pack(side="right", expand=True, fill="both", anchor="e")
+        
         # Left frame
         self.left_frame = ttk.Frame(self.master, style="blue.TFrame")
         self.left_frame.pack(side="left", expand=True, fill="both")
@@ -258,6 +271,7 @@ class animal_window():
         self.name_entry = ttk.Entry(self.title_frame, font=self.font_title)
         self.name_entry.pack(side="left")
 
+        # - Notes items.
         # - Notes label
         self.notes_l = ttk.Label(self.note_header_frame, text="Notes:", anchor="n")
         self.notes_l.pack(side="top", fill="x",)
@@ -265,8 +279,8 @@ class animal_window():
         # - Notes text box
         notes_scroll = tk.Scrollbar(self.notes_frame)
         self.note_text = tk.Text(self.notes_frame, width="34")
-        notes_scroll.pack(side="right", fill="y")
-        self.note_text.pack(side="right")
+        notes_scroll.pack(side="right", fill="y", expand=True)
+        self.note_text.pack(side="right", fill="both", expand=True)
         notes_scroll.config(command=self.note_text.yview)
         self.note_text.config(yscrollcommand=notes_scroll.set)
 
@@ -308,9 +322,23 @@ class animal_window():
         self.dob_text_0.pack(side="top", anchor="w", ipady=self.col_paddl)
         self.dob_text_1 = ttk.Label(self.dob_known_col[1], anchor="w")
         self.dob_text_1.pack(side="top", anchor="w", ipady=self.col_padd)
-
+        
+        # DOB Cal
         self.dob_cal = Calendar(self.dob_col)
         self.dob_cal.pack(side="top", anchor="n", fill="x")
+
+        # Cancel / submit / save changes buttons
+        self.cancel = ttk.Button(self.right_button_frame, text="Cancel")
+        self.cancel.pack(side="left", anchor="w", padx=20, pady=10)
+        self.submit = ttk.Button(self.left_button_frame, text="Submit")
+        self.save = ttk.Button(self.left_button_frame, text="Save")
+        
+        if self.type == "edit":
+            self.save.pack(side="right", anchor="e", padx=20, pady=10)
+        else:
+            self.submit.pack(side="right", anchor="e", padx=20, pady=10)
+
+
 
 
     def _show_hide_date(self, event):
@@ -319,10 +347,6 @@ class animal_window():
             self.dob_cal.pack(side="top", anchor="n", fill="x")
         else:
             self.dob_cal.pack_forget()
-
-
-        
-            
 
     def _populate_data(self, conn, id):
         populate_query = "SELECT * FROM Populate_Animal_Data WHERE ID = :ID"
@@ -345,13 +369,15 @@ class animal_window():
         # DOB known
         dob_known_text = results[1][0][results[0].index('DOB_Known')]
         self.dob_known_1.set(dob_known_text)
+        self._show_hide_date("")
         
         # Date of birth
-        dob_text = results[1][0][results[0].index('Date_Of_Birth')]
-        new_date = datetime.strptime(dob_text, '%Y-%m-%d')
-        new_date_text = new_date.strftime('%d/%m/%Y')
-        self.dob_cal.selection_set(new_date)
-        self.dob_text_1.configure(text=new_date_text)
+        if dob_known_text != "No":
+            dob_text = results[1][0][results[0].index('Date_Of_Birth')]
+            new_date = datetime.strptime(dob_text, '%Y-%m-%d')
+            new_date_text = new_date.strftime('%d/%m/%Y')
+            self.dob_cal.selection_set(new_date)
+            self.dob_text_1.configure(text=new_date_text)
 
         # Sex
         sex_text = results[1][0][results[0].index('Sex')]
@@ -359,12 +385,15 @@ class animal_window():
 
         # Colour
         colour_text = results[1][0][results[0].index('Colour')]
-        self.colour_1.insert(0,colour_text)
+        self.colour_1.insert(0, colour_text)
 
         # Hair type
         hair_type_text = results[1][0][results[0].index('Hair_Type')]
         self.hair_type_1.set(hair_type_text)
 
+        # Notes
+        notes_text = results[1][0][results[0].index('Notes')]
+        self.note_text.insert('end', notes_text)
 
 def basic_db_query(conn, query):
     """Runs SQL query on connection and returns results as list.
