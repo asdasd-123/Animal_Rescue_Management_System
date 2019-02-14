@@ -26,13 +26,13 @@ class build_main_window():
 
     def _setup_window(self):
         # Get and read config
-        config = configparser.ConfigParser()
-        config.read('Config/config.ini')
+        self.config = configparser.ConfigParser()
+        self.config.read('Config/config.ini')
 
         # Set window title to name from config
-        self.window_title = config['DEFAULT'].get('rescuename',
-                                                  'Rescue name not set up yet')
-        wm_title = self.window_title
+        self.title = self.config['DEFAULT'].get('rescuename',
+                                                'Rescue name not set up yet')
+        wm_title = self.title
         self.master.wm_title(wm_title)
 
         # Set window size on launch
@@ -145,7 +145,7 @@ class build_main_window():
 
     def _setup_tab_1_widgets(self):
         # -- Title Label
-        title = ttk.Label(self.header_filter, text=self.window_title)
+        title = ttk.Label(self.header_filter, text=self.title)
         title['font'] = self.font_title
         title.pack(side="top", anchor="w")
 
@@ -169,10 +169,20 @@ class build_main_window():
             lambda c: self.open_animal_window(
                 self.main_tree.tree.item(self.main_tree.tree.focus())))
 
+        animal_type = self.config['DEFAULT'].get('animaltype')
+        add_new_button = ttk.Button(self.buttons_frame,
+                                    text="Add New " + animal_type,
+                                    command=self.add_new_animal_window)
+        add_new_button.pack(anchor='nw', padx=6)
+
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"
         md = basic_db_query(self.conn, md_query)
         self.main_tree.refresh_data(md[1])
+
+    def add_new_animal_window(self):
+        animal_window(tk.Toplevel(self.master), self.conn, self,
+                      window_type="new")
 
     def open_animal_window(self, row_selected):
         animal_id = row_selected['values'][0]
@@ -210,32 +220,29 @@ class animal_window():
 
         # - Image frame
         self.image_frame = ttk.Frame(self.right_frame, width="300",
-                                     height="300", style="yellow.TFrame")
+                                     height="300")
         self.image_frame.pack(side="top", fill="x")
 
         # - Notes header frame
-        self.note_header_frame = ttk.Frame(self.right_frame,
-                                           style="blue.TFrame")
+        self.note_header_frame = ttk.Frame(self.right_frame)
         self.note_header_frame.pack(side="top", fill="x")
 
         # - Notes frame
-        self.notes_frame = ttk.Frame(self.right_frame, style="pink.TFrame")
+        self.notes_frame = ttk.Frame(self.right_frame)
         self.notes_frame.pack(side="top", fill="both", anchor="n")
 
         # - Buttons frame
-        self.buttons_frame = ttk.Frame(self.right_frame, style="blue.TFrame")
+        self.buttons_frame = ttk.Frame(self.right_frame)
         self.buttons_frame.pack(side="bottom", expand=True,
                                 fill="x", anchor="s")
 
         # -- Left button frame
-        self.left_button_frame = ttk.Frame(self.buttons_frame,
-                                           style="yellow.TFrame")
+        self.left_button_frame = ttk.Frame(self.buttons_frame)
         self.left_button_frame.pack(side="left", expand=True,
                                     fill="both", anchor="w")
 
         # -- Right button frame
-        self.right_button_frame = ttk.Frame(self.buttons_frame,
-                                            style="purple.TFrame")
+        self.right_button_frame = ttk.Frame(self.buttons_frame)
         self.right_button_frame.pack(side="right", expand=True,
                                      fill="both", anchor="e")
 
@@ -359,20 +366,28 @@ class animal_window():
         self.cancel = ttk.Button(self.right_button_frame, text="Cancel",
                                  command=self.close_window)
         self.cancel.pack(side="left", anchor="w", padx=20, pady=10)
-        self.submit = ttk.Button(self.left_button_frame, text="Submit")
-        self.save = ttk.Button(self.left_button_frame, text="Save",
-                               command=self.save_changes)
+        self.submit = ttk.Button(
+            self.left_button_frame,
+            text="Submit",
+            command=lambda c="save": self.update_database(c))
+        self.save = ttk.Button(
+            self.left_button_frame,
+            text="Save",
+            command=lambda c="edit": self.update_database(c))
 
         if self.type == "edit":
             self.save.pack(side="right", anchor="e", padx=20, pady=10)
         else:
             self.submit.pack(side="right", anchor="e", padx=20, pady=10)
 
-    def save_changes(self):
+    def update_database(self, sql_type=""):
+        if sql_type == "":
+            print("no sql type supplied")
+            return
+
         update_dict = {}
 
         # Get values
-        update_dict['ID'] = self.id_label.cget('text')
         update_dict['Name'] = self.name_entry.get()
         update_dict['Colour'] = self.colour_1.get()
         update_dict['Sex'] = self.sex_1.get()
@@ -387,7 +402,9 @@ class animal_window():
         update_dict['Dob'] = temp_date
         update_dict['Notes'] = self.note_text.get('1.0', 'end')
 
-        sql_query = """UPDATE Animal
+        if sql_type == "edit":
+            update_dict['ID'] = self.id_label.cget('text')
+            sql_query = """UPDATE Animal
                        SET Name = :Name,
                        Chip_Num = :Chip,
                        Date_Of_Birth = :Dob,
@@ -398,7 +415,33 @@ class animal_window():
                        Notes = :Notes
                        WHERE ID = :ID"""
 
-        adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
+            adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
+        elif sql_type == "save":
+            next_id_qry = """SELECT ID FROM Animal ORDER BY ID DESC LIMIT 1"""
+            next_id_returns = basic_db_query(self.conn, next_id_qry)
+            next_id = int(next_id_returns[1][0][0]) + 1
+            update_dict['ID'] = next_id
+            sql_query = """INSERT INTO Animal (
+                        Name,
+                        Chip_Num,
+                        Date_Of_Birth,
+                        DOB_Known,
+                        Sex,
+                        Colour,
+                        Hair_Type,
+                        Notes)
+                        VALUES (
+                        :Name,
+                        :Chip,
+                        :Dob,
+                        :DobKnown,
+                        :Sex,
+                        :Colour,
+                        :Hair,
+                        :Notes
+                        )"""
+            adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
+
         self.close_window()
         self.main_win.refresh_main_tree()
 
