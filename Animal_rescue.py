@@ -1,6 +1,6 @@
 import tkinter as tk
 import sqlite3
-from GUI_Main_page import build_main_window, animal_window
+from GUI_Main_page import build_main_window
 
 
 # Connect to db

@@ -11,6 +11,7 @@ from PIL import Image, ImageTk
 from tkcalendar import Calendar
 from datetime import datetime
 
+
 class build_main_window():
     """Builds the main window"""
     def __init__(self, master, conn):
@@ -135,12 +136,13 @@ class build_main_window():
 
         # -- Filters LabelFrame
         self.buttons_frame = ttk.LabelFrame(self.header_filter)
-        self.buttons_frame.pack(side="bottom", anchor="sw", expand=True, fill="both")
+        self.buttons_frame.pack(side="bottom", anchor="sw",
+                                expand=True, fill="both")
 
         # Tree/Search Frame
         self.tree_search_frame = ttk.Frame(self.tab1)
         self.tree_search_frame.pack(expand=True, fill="both")
-    
+
     def _setup_tab_1_widgets(self):
         # -- Title Label
         title = ttk.Label(self.header_filter, text=self.window_title)
@@ -167,9 +169,6 @@ class build_main_window():
             lambda c: self.open_animal_window(
                 self.main_tree.tree.item(self.main_tree.tree.focus())))
 
-
-
-    
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"
         md = basic_db_query(self.conn, md_query)
@@ -177,14 +176,16 @@ class build_main_window():
 
     def open_animal_window(self, row_selected):
         animal_id = row_selected['values'][0]
-        animal_window(tk.Toplevel(self.master), self.conn, self, window_type="edit", animal_id=animal_id)
+        animal_window(tk.Toplevel(self.master), self.conn, self,
+                      window_type="edit", animal_id=animal_id)
 
 
 class animal_window():
-    def __init__(self, master, conn, main_win, window_type="new", animal_id=""):
+    def __init__(self, master, conn, main_win,
+                 window_type="new", animal_id=""):
         self.conn = conn
         self.master = master
-        self.master.withdraw()  # Hide window
+        self.master.withdraw()      # Hide window
         self.master.geometry("1680x900")
         self.animal_id = animal_id
         self.main_win = main_win
@@ -195,7 +196,7 @@ class animal_window():
         if animal_id != "" and window_type == "edit":
             self._populate_data(conn, self.animal_id)
         print("Building animal window")
-        self.master.deiconify() # Show window
+        self.master.deiconify()     # Show window
 
     def _Setup_fonts(self):
         # Title Font settings
@@ -203,15 +204,18 @@ class animal_window():
 
     def _build_frames(self):
         # Right Frame
-        self.right_frame = ttk.Frame(self.master, width="300", style="green.TFrame")
+        self.right_frame = ttk.Frame(self.master, width="300",
+                                     style="green.TFrame")
         self.right_frame.pack(side="right", fill="both")
 
         # - Image frame
-        self.image_frame = ttk.Frame(self.right_frame, width="300", height="300", style="yellow.TFrame")
+        self.image_frame = ttk.Frame(self.right_frame, width="300",
+                                     height="300", style="yellow.TFrame")
         self.image_frame.pack(side="top", fill="x")
 
         # - Notes header frame
-        self.note_header_frame = ttk.Frame(self.right_frame, style="blue.TFrame")
+        self.note_header_frame = ttk.Frame(self.right_frame,
+                                           style="blue.TFrame")
         self.note_header_frame.pack(side="top", fill="x")
 
         # - Notes frame
@@ -220,16 +224,21 @@ class animal_window():
 
         # - Buttons frame
         self.buttons_frame = ttk.Frame(self.right_frame, style="blue.TFrame")
-        self.buttons_frame.pack(side="bottom",expand=True, fill="x", anchor="s")
-        
+        self.buttons_frame.pack(side="bottom", expand=True,
+                                fill="x", anchor="s")
+
         # -- Left button frame
-        self.left_button_frame = ttk.Frame(self.buttons_frame, style="yellow.TFrame")
-        self.left_button_frame.pack(side="left", expand=True, fill="both", anchor="w")
+        self.left_button_frame = ttk.Frame(self.buttons_frame,
+                                           style="yellow.TFrame")
+        self.left_button_frame.pack(side="left", expand=True,
+                                    fill="both", anchor="w")
 
         # -- Right button frame
-        self.right_button_frame = ttk.Frame(self.buttons_frame, style="purple.TFrame")
-        self.right_button_frame.pack(side="right", expand=True, fill="both", anchor="e")
-        
+        self.right_button_frame = ttk.Frame(self.buttons_frame,
+                                            style="purple.TFrame")
+        self.right_button_frame.pack(side="right", expand=True,
+                                     fill="both", anchor="e")
+
         # Left frame
         self.left_frame = ttk.Frame(self.master, style="blue.TFrame")
         self.left_frame.pack(side="left", expand=True, fill="both")
@@ -284,7 +293,8 @@ class animal_window():
 
         # - Notes items.
         # - Notes label
-        self.notes_l = ttk.Label(self.note_header_frame, text="Notes:", anchor="n")
+        self.notes_l = ttk.Label(self.note_header_frame,
+                                 text="Notes:", anchor="n")
         self.notes_l.pack(side="top", fill="x",)
 
         # - Notes text box
@@ -305,7 +315,8 @@ class animal_window():
         # - Sex
         self.sex_0 = ttk.Label(self.data_col[0][0], text="Sex: ", anchor="w")
         self.sex_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.sex_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('Unknown', 'Male', 'Female'))
+        self.sex_1 = ttk.Combobox(self.data_col[0][1], state='readonly',
+                                  values=('Unknown', 'Male', 'Female'))
         self.sex_1.pack(side="top", anchor="w", pady=self.col_padd)
 
         # - Chip number
@@ -315,35 +326,43 @@ class animal_window():
         self.chip_num_1.pack(side="top", anchor="w", pady=self.col_padd)
 
         # - Hair type
-        self.hair_type_0 = ttk.Label(self.data_col[0][0], text="Hair type: ", anchor="w")
+        self.hair_type_0 = ttk.Label(self.data_col[0][0],
+                                     text="Hair type: ", anchor="w")
         self.hair_type_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.hair_type_1 = ttk.Combobox(self.data_col[0][1], state='readonly', values=('Short Hair', 'Long Hair'))
+        self.hair_type_1 = ttk.Combobox(self.data_col[0][1], state='readonly',
+                                        values=('Short Hair', 'Long Hair'))
         self.hair_type_1.pack(side="top", anchor="w", pady=self.col_padd)
 
         # - Dob columns
         # - DOB known
-        self.dob_known_0 = ttk.Label(self.dob_known_col[0], text="DOB known?: ", anchor="w")
+        self.dob_known_0 = ttk.Label(self.dob_known_col[0],
+                                     text="DOB known?: ", anchor="w")
         self.dob_known_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        self.dob_known_1 = ttk.Combobox(self.dob_known_col[1], state='readonly', values=('No', 'Yes', 'Roughly'))
+        self.dob_known_1 = ttk.Combobox(self.dob_known_col[1],
+                                        state='readonly',
+                                        values=('No', 'Yes', 'Roughly'))
         self.dob_known_1.pack(side="top", anchor="w", pady=self.col_padd)
         self.dob_known_1.bind("<<ComboboxSelected>>", self._show_hide_date)
 
         # - DOB text
-        self.dob_text_0 = ttk.Label(self.dob_known_col[0], text="Date of birth: ", anchor="w")
+        self.dob_text_0 = ttk.Label(self.dob_known_col[0],
+                                    text="Date of birth: ", anchor="w")
         self.dob_text_0.pack(side="top", anchor="w", ipady=self.col_paddl)
         self.dob_text_1 = ttk.Label(self.dob_known_col[1], anchor="w")
         self.dob_text_1.pack(side="top", anchor="w", ipady=self.col_padd)
-        
+
         # DOB Cal
         self.dob_cal = Calendar(self.dob_col)
         self.dob_cal.pack(side="top", anchor="n", fill="x")
 
         # Cancel / submit / save changes buttons
-        self.cancel = ttk.Button(self.right_button_frame, text="Cancel", command=self.close_window)
+        self.cancel = ttk.Button(self.right_button_frame, text="Cancel",
+                                 command=self.close_window)
         self.cancel.pack(side="left", anchor="w", padx=20, pady=10)
         self.submit = ttk.Button(self.left_button_frame, text="Submit")
-        self.save = ttk.Button(self.left_button_frame, text="Save", command=self.save_changes)
-        
+        self.save = ttk.Button(self.left_button_frame, text="Save",
+                               command=self.save_changes)
+
         if self.type == "edit":
             self.save.pack(side="right", anchor="e", padx=20, pady=10)
         else:
@@ -382,7 +401,6 @@ class animal_window():
         adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
         self.close_window()
         self.main_win.refresh_main_tree()
-        
 
     def close_window(self):
         self.master.destroy()
@@ -398,7 +416,7 @@ class animal_window():
         populate_query = "SELECT * FROM Populate_Animal_Data WHERE ID = :ID"
         populate_dict = {'ID': id}
         results = adv_db_query(conn, populate_query, populate_dict)
-        
+
         # Update widgets
         # ID
         id_text = results[1][0][results[0].index('ID')]
@@ -407,7 +425,7 @@ class animal_window():
         # Name
         name_text = results[1][0][results[0].index('Name')]
         self.name_entry.insert(0, name_text)
-        
+
         # Chip num
         chip_num_text = results[1][0][results[0].index('Chip_Num')]
         self.chip_num_1.insert(0, chip_num_text)
@@ -416,7 +434,7 @@ class animal_window():
         dob_known_text = results[1][0][results[0].index('DOB_Known')]
         self.dob_known_1.set(dob_known_text)
         self._show_hide_date("")
-        
+
         # Date of birth
         if dob_known_text != "No":
             dob_text = results[1][0][results[0].index('Date_Of_Birth')]
@@ -440,6 +458,7 @@ class animal_window():
         # Notes
         notes_text = results[1][0][results[0].index('Notes')]
         self.note_text.insert('end', notes_text)
+
 
 def basic_db_query(conn, query):
     """Runs SQL query on connection and returns results as list.
