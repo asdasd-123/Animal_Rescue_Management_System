@@ -220,7 +220,7 @@ class animal_window():
 
         # - Image frame
         self.image_frame = ttk.Frame(self.right_frame, width="300",
-                                     height="300")
+                                     height="300", style="grey.TLabel")
         self.image_frame.pack(side="top", fill="x")
 
         # - Notes header frame
@@ -251,7 +251,7 @@ class animal_window():
         self.left_frame.pack(side="left", expand=True, fill="both")
 
         # - Title frame
-        self.title_frame = ttk.Frame(self.left_frame, style="grey.TFrame")
+        self.title_frame = ttk.Frame(self.left_frame)
         self.title_frame.pack(side="top", fill="x", ipady=10)
 
         # - Data frame (for dob, colour etc)
