@@ -134,7 +134,12 @@ class build_main_window():
         self.header_filter = ttk.Frame(self.header, padding="10")
         self.header_filter.pack(side="left", expand=True, fill="both")
 
-        # -- Filters LabelFrame
+        # -- Filters Frame
+        self.filters_frame = ttk.LabelFrame(self.header_filter, text="Filters")
+        self.filters_frame.pack(side="bottom", anchor="sw",
+                                expand=True, fill="both")
+
+        # -- Buttons Frame
         self.buttons_frame = ttk.LabelFrame(self.header_filter)
         self.buttons_frame.pack(side="bottom", anchor="sw",
                                 expand=True, fill="both")
@@ -156,8 +161,26 @@ class build_main_window():
         logo_img.image = logo_ph
         logo_img.pack(side="top")
 
+        # Add new animal button
+        animal_type = self.config['DEFAULT'].get('animaltype')
+        add_new_button = ttk.Button(self.buttons_frame,
+                                    text="Add New " + animal_type,
+                                    command=self.add_new_animal_window)
+        add_new_button.pack(anchor='nw', padx=6)
+
+        # In Rescue checkbox
+        self.in_rescue_var = tk.IntVar()
+        self.in_rescue = ttk.Checkbutton(self.filters_frame,
+                                         text="Only show animals in rescue: ",
+                                         variable=self.in_rescue_var,
+                                         command=self.refresh_main_tree)
+        self.in_rescue.pack(side="left", anchor="w")
+        self.in_rescue_var.set(1)
+
         # Get tree data and build tree (main data=md)
         md_query = "SELECT * FROM Main_Page_View"
+        if self.in_rescue_var.get() == 1:
+            md_query += "_Active"
         md = basic_db_query(self.conn, md_query)
         self.main_tree = TreeBuild(self.tree_search_frame,
                                    search=True,
@@ -169,14 +192,10 @@ class build_main_window():
             lambda c: self.open_animal_window(
                 self.main_tree.tree.item(self.main_tree.tree.focus())))
 
-        animal_type = self.config['DEFAULT'].get('animaltype')
-        add_new_button = ttk.Button(self.buttons_frame,
-                                    text="Add New " + animal_type,
-                                    command=self.add_new_animal_window)
-        add_new_button.pack(anchor='nw', padx=6)
-
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"
+        if self.in_rescue_var.get() == 1:
+            md_query += "_Active"
         md = basic_db_query(self.conn, md_query)
         self.main_tree.refresh_data(md[1])
 
@@ -205,7 +224,6 @@ class animal_window():
         self._build_widgets()
         if animal_id != "" and window_type == "edit":
             self._populate_data(conn, self.animal_id)
-        print("Building animal window")
         self.master.deiconify()     # Show window
 
     def _Setup_fonts(self):

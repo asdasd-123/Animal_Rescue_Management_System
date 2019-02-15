@@ -7,8 +7,8 @@ Front-End software for an animal rescue to manage records.
 - ~~"Add new animal" button to bring up a page to input all info and button to submit~~
 - ~~Add "Currently at rescue" flag to animal table in db~~
 - ~~Add "in Rescue" checkbox to animal window~~
-- Split current labelframe in main window into two. one for buttons, one for treeview filters
-- Add checkbox filter in main window to only display animals in rescue or not
+- ~~Split current labelframe in main window into two. one for buttons, one for treeview filters~~
+- ~~Add checkbox filter in main window to only display animals in rescue or not~~
 - Add ability to add medical events
 - Add section on medical history to individual animal window
 - Add medical history tab to main window with full medical history
