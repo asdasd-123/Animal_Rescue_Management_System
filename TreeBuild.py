@@ -99,7 +99,7 @@ class TreeBuild:
             if self.widths_supplied:
                 w = heading[3]
             else:
-                w = tkfont.Font().measure(heading[0]) + 20
+                w = tkfont.Font().measure(heading[0])
 
             # Build the frame and then the entry box inside.
             setattr(self, heading[1], ttk.Frame(self.search_frame,
@@ -151,7 +151,7 @@ class TreeBuild:
             if self.widths_supplied:
                 w = col[3]
             else:
-                w = tkfont.Font().measure(col[0]) + 20
+                w = tkfont.Font().measure(col[0])
 
             self.tree.heading(
                 col[0],
