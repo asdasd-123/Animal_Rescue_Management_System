@@ -5,7 +5,7 @@ Front-End software for an animal rescue to manage records.
 - ~~Main window to display searchable and sortable treeview~~
 - ~~Double clicking an animal on the main window to bring up the edit window, with ability for changed to be saved back to the db~~
 - ~~"Add new animal" button to bring up a page to input all info and button to submit~~
-- ~~~Add "Currently at rescue" flag to animal table in db~~~
+- ~~Add "Currently at rescue" flag to animal table in db~~
 - ~~Add "in Rescue" checkbox to animal window~~
 - Split current labelframe in main window into two. one for buttons, one for treeview filters
 - Add checkbox filter in main window to only display animals in rescue or not
