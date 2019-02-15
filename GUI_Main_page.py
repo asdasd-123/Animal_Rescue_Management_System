@@ -166,7 +166,14 @@ class build_main_window():
         add_new_button = ttk.Button(self.buttons_frame,
                                     text="Add New " + animal_type,
                                     command=self.add_new_animal_window)
-        add_new_button.pack(anchor='nw', padx=6)
+        add_new_button.pack(side="left", anchor='nw', padx=6)
+
+        # Add new medical entry button
+        medical_entry_button = ttk.Button(
+            self.buttons_frame,
+            text="Add Medical Event",
+            command=self.open_medical_entry_window)
+        medical_entry_button.pack(side="left", anchor='nw', padx=6)
 
         # In Rescue checkbox
         self.in_rescue_var = tk.IntVar()
@@ -203,10 +210,46 @@ class build_main_window():
         animal_window(tk.Toplevel(self.master), self.conn, self,
                       window_type="new")
 
+    def open_medical_entry_window(self):
+        medical_entry_window(tk.Toplevel(self.master), self.conn, self)
+
     def open_animal_window(self, row_selected):
         animal_id = row_selected['values'][0]
         animal_window(tk.Toplevel(self.master), self.conn, self,
                       window_type="edit", animal_id=animal_id)
+
+
+class medical_entry_window():
+    def __init__(self, master, conn, main_win):
+        self.conn = conn
+        self.master = master
+        self.master.withdraw()      # Hide window
+        self.master.geometry("1024x700")
+        self.main_win = main_win    # Used for comunicating with parent window.
+        self._build_frames()
+        self._build_widgets()
+        self.master.deiconify()     # show window
+
+    def _build_frames(self):
+        # Right frame
+        self.right_frame = ttk.Frame(self.master, width="200", style="green.TFrame")
+        self.right_frame.pack_propagate(0)
+        self.right_frame.pack(side="right", fill="y")
+
+        # In-Rescue checkbox frame:
+        self.in_rescue_frame = ttk.Frame(self.right_frame, style="yellow.TFrame")
+        self.in_rescue_frame.pack(side="top", fill="x", anchor="w")
+
+    def _build_widgets(self):
+        # In-Rescue checkbox
+        self.in_rescue_var = tk.IntVar()
+        self.in_rescue = ttk.Checkbutton(self.in_rescue_frame,
+                                         text="Only show animals in rescue: ",
+                                         variable=self.in_rescue_var)
+        self.in_rescue.pack(side="left", anchor="w")
+        self.in_rescue_var.set(1)
+
+        
 
 
 class animal_window():
