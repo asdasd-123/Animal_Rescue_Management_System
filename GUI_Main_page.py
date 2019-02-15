@@ -344,11 +344,11 @@ class animal_window():
         self.in_rescue_0 = ttk.Label(self.data_col[0][0],
                                      text="In Rescue: ", anchor="w")
         self.in_rescue_0.pack(side="top", anchor="w", ipady=self.col_paddl)
-        in_rescue_var = tk.IntVar()
+        self.in_rescue_var = tk.IntVar()
         self.in_rescue_1 = ttk.Checkbutton(self.data_col[0][1],
-                                           variable=in_rescue_var)
+                                           variable=self.in_rescue_var)
         self.in_rescue_1.pack(side="top", anchor="w", pady=self.col_padd)
-        in_rescue_var.set(0)
+        self.in_rescue_var.set(1)
 
         # - Dob columns
         # - DOB known
@@ -411,7 +411,7 @@ class animal_window():
             temp_date = ""
         update_dict['Dob'] = temp_date
         update_dict['Notes'] = self.note_text.get('1.0', 'end').rstrip()
-
+        update_dict['InRescue'] = self.in_rescue_var.get()
         if sql_type == "edit":
             update_dict['ID'] = self.id_label.cget('text')
             sql_query = """UPDATE Animal
@@ -422,7 +422,8 @@ class animal_window():
                        Sex = :Sex,
                        Colour = :Colour,
                        Hair_Type = :Hair,
-                       Notes = :Notes
+                       Notes = :Notes,
+                       In_Rescue = :InRescue
                        WHERE ID = :ID"""
 
             adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
@@ -450,7 +451,7 @@ class animal_window():
                         :Colour,
                         :Hair,
                         :Notes,
-                        1
+                        :InRescue
                         )"""
             adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
 
@@ -513,6 +514,10 @@ class animal_window():
         # Notes
         notes_text = results[1][0][results[0].index('Notes')]
         self.note_text.insert('end', notes_text)
+
+        # In rescue
+        in_rescue_value = results[1][0][results[0].index('In_Rescue')]
+        self.in_rescue_var.set(in_rescue_value)
 
 
 def basic_db_query(conn, query):
