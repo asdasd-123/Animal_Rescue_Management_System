@@ -340,6 +340,16 @@ class animal_window():
                                         values=('Short Hair', 'Long Hair'))
         self.hair_type_1.pack(side="top", anchor="w", pady=self.col_padd)
 
+        # - In Rescue
+        self.in_rescue_0 = ttk.Label(self.data_col[0][0],
+                                     text="In Rescue: ", anchor="w")
+        self.in_rescue_0.pack(side="top", anchor="w", ipady=self.col_paddl)
+        in_rescue_var = tk.IntVar()
+        self.in_rescue_1 = ttk.Checkbutton(self.data_col[0][1],
+                                           variable=in_rescue_var)
+        self.in_rescue_1.pack(side="top", anchor="w", pady=self.col_padd)
+        in_rescue_var.set(0)
+
         # - Dob columns
         # - DOB known
         self.dob_known_0 = ttk.Label(self.dob_known_col[0],
@@ -429,7 +439,8 @@ class animal_window():
                         Sex,
                         Colour,
                         Hair_Type,
-                        Notes)
+                        Notes,
+                        In_Rescue)
                         VALUES (
                         :Name,
                         :Chip,
@@ -438,7 +449,8 @@ class animal_window():
                         :Sex,
                         :Colour,
                         :Hair,
-                        :Notes
+                        :Notes,
+                        1
                         )"""
             adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
 
