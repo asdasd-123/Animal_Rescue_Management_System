@@ -238,24 +238,24 @@ class medical_entry_window():
         self.right_frame.pack_propagate(0)
         self.right_frame.pack(side="right", fill="y")
 
-        # Add button frame
+        # - Add button frame
         self.add_frame = ttk.Frame(self.right_frame)
         self.add_frame.pack(side="top", fill="x")
 
-        # In-Rescue checkbox frame
+        # - In-Rescue checkbox frame
         self.in_rescue_frame = ttk.Frame(self.right_frame)
         self.in_rescue_frame.pack(side="top", fill="x", anchor="w")
 
-        # Animal tree frame
+        # - Animal tree frame
         self.animal_tree_frame = ttk.Frame(self.right_frame)
         self.animal_tree_frame.pack(side="top", fill="both", expand="True")
 
     def _build_widgets(self):
-        # Add button
+        # - Add button
         self.add_button = ttk.Button(self.add_frame, text="Add Animal")
         self.add_button.pack(side="top", anchor="n", fill="x")
 
-        # In-Rescue checkbox
+        # - In-Rescue checkbox
         self.in_rescue_var = tk.IntVar()
         self.in_rescue = ttk.Checkbutton(self.in_rescue_frame,
                                          text="Only show animals in rescue: ",
@@ -264,7 +264,7 @@ class medical_entry_window():
         self.in_rescue.pack(side="left", anchor="w")
         self.in_rescue_var.set(1)
 
-        # Build animal tree.
+        # - Build animal tree.
         animal_query = "SELECT * FROM Animal_ID_View"
         if self.in_rescue_var.get() == 1:
             animal_query += "_Active"
