@@ -211,7 +211,8 @@ class build_main_window():
                       window_type="new")
 
     def open_medical_entry_window(self):
-        medical_entry_window(tk.Toplevel(self.master), self.conn, self)
+        self.med_win = medical_entry_window(tk.Toplevel(self.master),
+                                            self.conn, self)
 
     def open_animal_window(self, row_selected):
         animal_id = row_selected['values'][0]
@@ -224,6 +225,7 @@ class medical_entry_window():
         self.conn = conn
         self.master = master
         self.master.withdraw()      # Hide window
+        self.master.wm_title("Medical Entries")
         self.master.geometry("1024x700")
         self.main_win = main_win    # Used for comunicating with parent window.
         self._build_frames()
@@ -232,24 +234,52 @@ class medical_entry_window():
 
     def _build_frames(self):
         # Right frame
-        self.right_frame = ttk.Frame(self.master, width="200", style="green.TFrame")
+        self.right_frame = ttk.Frame(self.master, width="200")
         self.right_frame.pack_propagate(0)
         self.right_frame.pack(side="right", fill="y")
 
-        # In-Rescue checkbox frame:
-        self.in_rescue_frame = ttk.Frame(self.right_frame, style="yellow.TFrame")
+        # Add button frame
+        self.add_frame = ttk.Frame(self.right_frame)
+        self.add_frame.pack(side="top", fill="x")
+
+        # In-Rescue checkbox frame
+        self.in_rescue_frame = ttk.Frame(self.right_frame)
         self.in_rescue_frame.pack(side="top", fill="x", anchor="w")
 
+        # Animal tree frame
+        self.animal_tree_frame = ttk.Frame(self.right_frame)
+        self.animal_tree_frame.pack(side="top", fill="both", expand="True")
+
     def _build_widgets(self):
+        # Add button
+        self.add_button = ttk.Button(self.add_frame, text="Add Animal")
+        self.add_button.pack(side="top", anchor="n", fill="x")
+
         # In-Rescue checkbox
         self.in_rescue_var = tk.IntVar()
         self.in_rescue = ttk.Checkbutton(self.in_rescue_frame,
                                          text="Only show animals in rescue: ",
-                                         variable=self.in_rescue_var)
+                                         variable=self.in_rescue_var,
+                                         command=self.refresh_animal_data)
         self.in_rescue.pack(side="left", anchor="w")
         self.in_rescue_var.set(1)
 
-        
+        # Build animal tree.
+        animal_query = "SELECT * FROM Animal_ID_View"
+        if self.in_rescue_var.get() == 1:
+            animal_query += "_Active"
+        md = basic_db_query(self.conn, animal_query)
+        self.animal_tree = TreeBuild(self.animal_tree_frame,
+                                     search=True,
+                                     data=md[1],
+                                     headings=md[0])
+
+    def refresh_animal_data(self):
+        md_query = "SELECT * FROM Animal_ID_View"
+        if self.in_rescue_var.get() == 1:
+            md_query += "_Active"
+        md = basic_db_query(self.conn, md_query)
+        self.animal_tree.refresh_data(md[1])
 
 
 class animal_window():
