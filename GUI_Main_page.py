@@ -8,7 +8,7 @@ import tkinter.ttk as ttk
 import configparser
 from TreeBuild import TreeBuild
 from PIL import Image, ImageTk
-from tkcalendar import Calendar
+from tkcalendar import Calendar, DateEntry
 from datetime import datetime
 
 
@@ -224,7 +224,7 @@ class medical_entry_window():
     def __init__(self, master, conn, main_win):
         self.conn = conn
         self.master = master
-        self.med_list = []           # list of ids to display in rows.
+        self.med_dict = {}          # dictionary of button ID's and animal ids 
         self.master.withdraw()      # Hide window
         self.master.wm_title("Medical Entries")
         self.master.geometry("1024x700")
@@ -264,7 +264,7 @@ class medical_entry_window():
         self.cal_frame.pack(side="right", fill="y")
 
         # - Medical entries frame
-        self.med_frame = ttk.Frame(self.left_frame, style="brown.TFrame")
+        self.med_frame = ttk.Frame(self.left_frame)
         self.med_frame.pack(side="top", fill="both", expand=True)
 
     def _build_widgets(self):
@@ -304,46 +304,208 @@ class medical_entry_window():
 
     def _add_animal(self):
         results = self.animal_tree.tree.item(self.animal_tree.tree.focus())['values']
-        add_id = results[0]
-        ids = str(results[0])   # String of id for creating attributes
+        animal_id = results[0]
         add_name = results[1]
 
-        self._get_next_row_id()
+        # Sort out next buttons/frame ID
+        button_id = self._get_next_row_id()     # returns 999 if maxed out
+        if button_id == 999:
+            return
+        else:
+            self.med_dict[button_id] = animal_id
 
-        # Create new frame
-        setattr(self, "medf" + ids, ttk.Frame(self.med_frame, style="yellow.TFrame"))
+        # String of button id and shortening name for creating attributes  
+        ids = str(button_id)
+        # ================ Frames
+        # Create new master framer for row
+        setattr(self, "medmasterf" + ids, ttk.Frame(self.med_frame))
+        medmasterf = getattr(self, "medmasterf" + ids)  # set as local var so can be used below
+        getattr(self, "medmasterf" + ids).pack(side="top", fill="x", pady=2)
+        # - Create top frame
+        setattr(self, "medf" + ids, ttk.Frame(medmasterf))
         medf = getattr(self, "medf" + ids)  # set as local var so can be used below
         getattr(self, "medf" + ids).pack(side="top", fill="x")
+        # - Create 2nd frame
+        setattr(self, "medf2" + ids, ttk.Frame(medmasterf))
+        medf2 = getattr(self, "medf2" + ids)  # set as local var so can be used below
+        getattr(self, "medf2" + ids).pack(side="top", fill="x")
 
+        # ================ Widgets
         # Create the button
-        setattr(self, "medb" + ids, ttk.Button(medf, text="-", width="2", command=lambda: self._remove_animal(add_id)))
+        setattr(self, "medb" + ids, ttk.Button(medf, text="-", width="2", command=lambda: self._remove_animal(button_id)))
         getattr(self, "medb" + ids).pack(side="left")
 
         # Create Labels
-        setattr(self, "medid" + ids, ttk.Label(medf, text=ids))
+        setattr(self, "medid" + ids, ttk.Label(medf, text=animal_id))
         getattr(self, "medid" + ids).pack(side="left")
         name_text = ": " + add_name + " | "
         setattr(self, "medname" + ids, ttk.Label(medf, text=name_text))
         getattr(self, "medname" + ids).pack(side="left")
 
-    def _get_next_row_id(self, button_id):
-        if len(self.med_list) == 0:
-            return 0
-        for i in range(30):     # max 30 entries
-            
+        # Med_type combobox
+        setattr(self, "medtype" + ids, ttk.Combobox(medf, state="readonly", values=("Vet", "Other")))
+        getattr(self, "medtype" + ids).pack(side="left")
+        getattr(self, "medtype" + ids).bind("<<ComboboxSelected>>", lambda c: self._med_type_selection(button_id))
+
+        # - (vet() Vet_Name label/combobox
+        setattr(self, "medvetnamel" + ids, ttk.Label(medf, text="| Vet Name : "))
+        setattr(self, "medvetnamee" + ids, ttk.Entry(medf))
+
+        # - (vet) Op type
+        setattr(self, "medoptypel" + ids, ttk.Label(medf, text="| Type : "))
+        setattr(self, "medoptype" + ids, ttk.Combobox(medf, state="readonly", values=("Chip", "Checkup", "Neuter", "Vaccination", "Other")))
+        getattr(self, "medoptype" + ids).bind("<<ComboboxSelected>>", lambda c: self._op_type_selection(button_id))
+
+        # -- (chip) chiplabel
+        setattr(self, "chipnuml" + ids, ttk.Label(medf, text="| Chip Num : "))
+        setattr(self, "chipnume" + ids, ttk.Entry(medf))
+
+        # Cost entry boxs *Movable and will be destoyed in certain routes.
+        #                  re-create when needed.
+        setattr(self, "medcostl" + ids, ttk.Label(medf, text="| Cost : "))
+        setattr(self, "medcoste" + ids, ttk.Entry(medf))
+
+        # Checkup Label
+        setattr(self, "medcheckupl" + ids, ttk.Label(medf2, text="| Checkup Notes : "))
+
+        # Notes Entry/label
+        setattr(self, "mednotesl" + ids, ttk.Label(medf2, text="| Notes : "))
+        setattr(self, "mednotese" + ids, ttk.Entry(medf2))
+
+        # Other op type label/entry
+        setattr(self, "medotheropl" + ids, ttk.Label(medf, text="| Procedure : "))
+        setattr(self, "medotherope" + ids, ttk.Entry(medf))
+
+        # vac type (first/second)
+        setattr(self, "medvactypel" + ids, ttk.Label(medf, text="| Vac Type : "))
+        setattr(self, "medvactype" + ids, ttk.Combobox(medf, state="readonly", values=("First", "Second", "Top-Up")))
+        getattr(self, "medvactype" + ids).bind("<<ComboboxSelected>>", lambda c: self._vac_type_selection(button_id))
+        
+        # vac due date + label
+        setattr(self, "medduedatel" + ids, ttk.Label(medf2, text="| Next Vac Due : "))
+        setattr(self, "medduedate" + ids, DateEntry(medf2))
+
+
+
+    def _get_next_row_id(self):
+        for i in range(30):     # Max 30 entries
+            if i not in self.med_dict:
+                return i
+        return 999
 
     def _remove_animal(self, rem_id):
         ids = str(rem_id)
-        # remove widgets in reverse order to avoid packing issues
-        # labels
-        getattr(self, "medname" + ids).destroy()
-        getattr(self, "medid" + ids).destroy()
+        getattr(self, "medmasterf" + ids).destroy()
+        
+    # =========
+    # Functions for controlling row contents when options selected
+    # =========
+    # Medical Type Combobox (vet/other)
+    def _med_type_selection(self, button_id):
+        ids = str(button_id)
+        option = getattr(self, "medtype" + ids).get()
+        # unpack everything first :
+        getattr(self, "medvetnamel" + ids).pack_forget()
+        getattr(self, "medvetnamee" + ids).pack_forget()
+        getattr(self, "medoptypel" + ids).pack_forget()
+        getattr(self, "medoptype" + ids).set("")    # trigger op_type below
+        getattr(self, "medoptype" + ids).event_generate("<<ComboboxSelected>>")
+        getattr(self, "medoptype" + ids).pack_forget()
 
-        # Button
-        getattr(self, "medb" + ids).destroy()
+        if option == "Vet": 
+            # Pack vet options
+            getattr(self, "medvetnamel" + ids).pack(side="left")
+            getattr(self, "medvetnamee" + ids).pack(side="left")
+            getattr(self, "medoptypel" + ids).pack(side="left")
+            getattr(self, "medoptype" + ids).pack(side="left")
+            
+    def _op_type_selection(self, button_id):
+        ids = str(button_id)
+        option = getattr(self, "medoptype" + ids).get()
+        medf = getattr(self, "medf" + ids)
+        medf2 = getattr(self, "medf2" + ids)
+        # unpack everything first
+        getattr(self, "chipnuml" + ids).pack_forget()
+        getattr(self, "chipnume" + ids).pack_forget()
+        getattr(self, "medcostl" + ids).pack_forget()
+        getattr(self, "medcheckupl" + ids).pack_forget()
+        getattr(self, "mednotese" + ids).pack_forget()
+        getattr(self, "mednotesl" + ids).pack_forget()
+        getattr(self, "medotheropl" + ids).pack_forget()
+        getattr(self, "medotherope" + ids).pack_forget()
+        getattr(self, "medvactype" + ids).set("")    # trigger op_type below
+        getattr(self, "medvactype" + ids).event_generate("<<ComboboxSelected>>")
+        getattr(self, "medvactype" + ids).pack_forget()
+        getattr(self, "medvactypel" + ids).pack_forget()
+        # destroy items that need to be moved
+        getattr(self, "medcostl" + ids).destroy()
+        getattr(self, "medcoste" + ids).destroy()
+        medf2.pack_forget()
 
-        # Button
-        getattr(self, "medf" + ids).destroy()
+        if option == "Chip":
+            # only pack the frame if needed
+            medf2.pack(side="top", fill="x")
+            getattr(self, "chipnuml" + ids).pack(side="left")
+            getattr(self, "chipnume" + ids).pack(side="left")
+            # re-create it in 2nd row
+            setattr(self, "medcostl" + ids, ttk.Label(medf2, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf2))
+            getattr(self, "medcoste" + ids).pack(side="left")
+        elif option == "Checkup":
+            setattr(self, "medcostl" + ids, ttk.Label(medf, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf))
+            getattr(self, "medcoste" + ids).pack(side="left")
+            # only pack the frame if needed
+            medf2.pack(side="top", fill="x")
+            getattr(self, "medcheckupl" + ids).pack(side="left")
+            getattr(self, "mednotese" + ids).pack(side="left", fill="x", expand=True)
+        elif option == "Neuter":
+            setattr(self, "medcostl" + ids, ttk.Label(medf, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf))
+            getattr(self, "medcoste" + ids).pack(side="left")
+        elif option == "Other":
+            getattr(self, "medotheropl" + ids).pack(side="left")
+            getattr(self, "medotherope" + ids).pack(side="left", fill="x", expand=True)
+            # only pack the frame if needed
+            medf2.pack(side="top", fill="x")
+            setattr(self, "medcostl" + ids, ttk.Label(medf2, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf2))
+            getattr(self, "medcoste" + ids).pack(side="left")
+            getattr(self, "mednotesl" + ids).pack(side="left")
+            getattr(self, "mednotese" + ids).pack(side="left", fill="x", expand=True)
+        elif option == "Vaccination":
+            getattr(self, "medvactypel" + ids).pack(side="left")
+            getattr(self, "medvactype" + ids).pack(side="left")
+
+    def _vac_type_selection(self, button_id):
+        ids = str(button_id)
+        option = getattr(self, "medvactype" + ids).get()
+        medf = getattr(self, "medf" + ids)
+        medf2 = getattr(self, "medf2" + ids)
+        # unpack everything first
+        getattr(self, "medduedate" + ids).pack_forget()
+        getattr(self, "medduedatel" + ids).pack_forget()
+        getattr(self, "medcostl" + ids).destroy()
+        getattr(self, "medcoste" + ids).destroy()
+        medf2.pack_forget()
+
+        if option in ("First", "Second", "Top-Up"):
+            # only pack the frame if needed
+            medf2.pack(side="top", fill="x")
+            setattr(self, "medcostl" + ids, ttk.Label(medf2, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf2))
+            getattr(self, "medcoste" + ids).pack(side="left")
+            getattr(self, "medduedatel" + ids).pack(side="left")
+            getattr(self, "medduedate" + ids).pack(side="left")
+
+    # =========
+    # End of functions
+    # =========
 
     def refresh_animal_data(self):
         md_query = "SELECT * FROM Animal_ID_View"
