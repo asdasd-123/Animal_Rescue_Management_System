@@ -224,6 +224,7 @@ class medical_entry_window():
     def __init__(self, master, conn, main_win):
         self.conn = conn
         self.master = master
+        self.med_list = []           # list of ids to display in rows.
         self.master.withdraw()      # Hide window
         self.master.wm_title("Medical Entries")
         self.master.geometry("1024x700")
@@ -250,9 +251,26 @@ class medical_entry_window():
         self.animal_tree_frame = ttk.Frame(self.right_frame)
         self.animal_tree_frame.pack(side="top", fill="both", expand="True")
 
+        # Left frame
+        self.left_frame = ttk.Frame(self.master, style="pink.TFrame")
+        self.left_frame.pack(side="left", fill="both", expand=True)
+
+        # - Header frame
+        self.header_frame = ttk.Frame(self.left_frame, style="blue.TFrame")
+        self.header_frame.pack(side="top", anchor="w", fill="x")
+
+        # -- Calender frame
+        self.cal_frame = ttk.Frame(self.header_frame, width="300", style="brown.TFrame")
+        self.cal_frame.pack(side="right", fill="y")
+
+        # - Medical entries frame
+        self.med_frame = ttk.Frame(self.left_frame, style="brown.TFrame")
+        self.med_frame.pack(side="top", fill="both", expand=True)
+
     def _build_widgets(self):
+        # Right frame items
         # - Add button
-        self.add_button = ttk.Button(self.add_frame, text="Add Animal")
+        self.add_button = ttk.Button(self.add_frame, text="Add Animal", command=self._add_animal)
         self.add_button.pack(side="top", anchor="n", fill="x")
 
         # - In-Rescue checkbox
@@ -273,6 +291,59 @@ class medical_entry_window():
                                      search=True,
                                      data=md[1],
                                      headings=md[0])
+
+        # - Header frame items
+        # - heading label
+        heading = ttk.Label(self.header_frame, text="Medical Entries", font=self.main_win.font_title)
+        heading.pack(side="left", anchor="nw", padx=10)
+
+        # -- Calendar frame items
+        # -- Calandar
+        self.calendar = Calendar(self.cal_frame)
+        self.calendar.pack(side="top", anchor="n")
+
+    def _add_animal(self):
+        results = self.animal_tree.tree.item(self.animal_tree.tree.focus())['values']
+        add_id = results[0]
+        ids = str(results[0])   # String of id for creating attributes
+        add_name = results[1]
+
+        self._get_next_row_id()
+
+        # Create new frame
+        setattr(self, "medf" + ids, ttk.Frame(self.med_frame, style="yellow.TFrame"))
+        medf = getattr(self, "medf" + ids)  # set as local var so can be used below
+        getattr(self, "medf" + ids).pack(side="top", fill="x")
+
+        # Create the button
+        setattr(self, "medb" + ids, ttk.Button(medf, text="-", width="2", command=lambda: self._remove_animal(add_id)))
+        getattr(self, "medb" + ids).pack(side="left")
+
+        # Create Labels
+        setattr(self, "medid" + ids, ttk.Label(medf, text=ids))
+        getattr(self, "medid" + ids).pack(side="left")
+        name_text = ": " + add_name + " | "
+        setattr(self, "medname" + ids, ttk.Label(medf, text=name_text))
+        getattr(self, "medname" + ids).pack(side="left")
+
+    def _get_next_row_id(self, button_id):
+        if len(self.med_list) == 0:
+            return 0
+        for i in range(30):     # max 30 entries
+            
+
+    def _remove_animal(self, rem_id):
+        ids = str(rem_id)
+        # remove widgets in reverse order to avoid packing issues
+        # labels
+        getattr(self, "medname" + ids).destroy()
+        getattr(self, "medid" + ids).destroy()
+
+        # Button
+        getattr(self, "medb" + ids).destroy()
+
+        # Button
+        getattr(self, "medf" + ids).destroy()
 
     def refresh_animal_data(self):
         md_query = "SELECT * FROM Animal_ID_View"
