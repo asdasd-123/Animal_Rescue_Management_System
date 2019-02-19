@@ -199,7 +199,7 @@ class build_main_window():
         self.main_tree.tree.bind(
             "<Double-1>",
             lambda c: self.open_animal_window(
-                self.main_tree.tree.item(self.main_tree.tree.focus())))
+                self.main_tree.tree.item(self.main_tree.tree.focus()), c))
 
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"
@@ -216,10 +216,12 @@ class build_main_window():
         self.med_win = medical_entry_window(tk.Toplevel(self.master),
                                             self.conn, self)
 
-    def open_animal_window(self, row_selected):
-        animal_id = row_selected['values'][0]
-        animal_window(tk.Toplevel(self.master), self.conn, self,
-                      window_type="edit", animal_id=animal_id)
+    def open_animal_window(self, row_selected, event=None):
+        region = self.main_tree.tree.identify("region", event.x, event.y)
+        if region != "heading":
+            animal_id = row_selected['values'][0]
+            animal_window(tk.Toplevel(self.master), self.conn, self,
+                          window_type="edit", animal_id=animal_id)
 
 
 class medical_entry_window():
@@ -306,6 +308,8 @@ class medical_entry_window():
 
     def _add_animal(self):
         results = self.animal_tree.tree.item(self.animal_tree.tree.focus())['values']
+        if results == '':
+            return
         animal_id = results[0]
         add_name = results[1]
 
@@ -320,9 +324,9 @@ class medical_entry_window():
         ids = str(button_id)
         # ================ Frames
         # Create new master framer for row
-        setattr(self, "medmasterf" + ids, ttk.Frame(self.med_frame))
+        setattr(self, "medmasterf" + ids, ttk.Frame(self.med_frame, style="grey.TFrame"))
         medmasterf = getattr(self, "medmasterf" + ids)  # set as local var so can be used below
-        getattr(self, "medmasterf" + ids).pack(side="top", fill="x", pady=2)
+        getattr(self, "medmasterf" + ids).pack(side="top", fill="x", ipady=1)
         # - Create top frame
         setattr(self, "medf" + ids, ttk.Frame(medmasterf))
         medf = getattr(self, "medf" + ids)  # set as local var so can be used below
@@ -351,7 +355,9 @@ class medical_entry_window():
 
         # - (vet() Vet_Name label/combobox
         setattr(self, "medvetnamel" + ids, ttk.Label(medf, text="| Vet Name : "))
+        vet_text = self.main_win.config['DEFAULT'].get('defaultvet')
         setattr(self, "medvetnamee" + ids, ttk.Entry(medf))
+        getattr(self, "medvetnamee" + ids).insert(0, vet_text)
 
         # - (vet) Op type
         setattr(self, "medoptypel" + ids, ttk.Label(medf, text="| Type : "))
@@ -387,9 +393,13 @@ class medical_entry_window():
         setattr(self, "medduedatel" + ids, ttk.Label(medf2, text="| Next Vac Due : "))
         setattr(self, "medduedate" + ids, DateEntry(medf2))
 
+        # Worm/Flea/Both label + combo
+        setattr(self, "medfleatypel" + ids, ttk.Label(medf, text="| Treatment : "))
+        setattr(self, "medfleatype" + ids, ttk.Combobox(medf, state="readonly", values=("Flea", "Worming", "Flea and Worming", "Other")))
+        getattr(self, "medfleatype" + ids).bind("<<ComboboxSelected>>", lambda c: self._non_vet_type_selection(button_id))
 
     def _get_next_row_id(self):
-        for i in range(30):     # Max 30 entries
+        for i in range(16):     # Max 30 entries
             if i not in self.med_dict:
                 return i
         return 999
@@ -412,6 +422,8 @@ class medical_entry_window():
         getattr(self, "medoptype" + ids).set("")    # trigger op_type below
         getattr(self, "medoptype" + ids).event_generate("<<ComboboxSelected>>")
         getattr(self, "medoptype" + ids).pack_forget()
+        getattr(self, "medfleatypel" + ids).pack_forget()
+        getattr(self, "medfleatype" + ids).pack_forget()
 
         if option == "Vet": 
             # Pack vet options
@@ -419,6 +431,9 @@ class medical_entry_window():
             getattr(self, "medvetnamee" + ids).pack(side="left")
             getattr(self, "medoptypel" + ids).pack(side="left")
             getattr(self, "medoptype" + ids).pack(side="left")
+        elif option == "Other":
+            getattr(self, "medfleatypel" + ids).pack(side="left")
+            getattr(self, "medfleatype" + ids).pack(side="left")
             
     def _op_type_selection(self, button_id):
         ids = str(button_id)
@@ -516,6 +531,29 @@ class medical_entry_window():
             getattr(self, "medduedate" + ids).delete(0, 'end')
             getattr(self, "medduedate" + ids).insert(0, due_date_text)
 
+    def _non_vet_type_selection(self, button_id):
+        ids = str(button_id)
+        option = getattr(self, "medfleatype" + ids).get()
+        medf = getattr(self, "medf" + ids)
+        medf2 = getattr(self, "medf2" + ids)
+        # unpack everything first
+        getattr(self, "medcostl" + ids).destroy()
+        getattr(self, "medcoste" + ids).destroy()
+        getattr(self, "medotheropl" + ids).pack_forget()
+        getattr(self, "medotherope" + ids).pack_forget()
+
+        if option in ('Flea', 'Worming', 'Flea and Worming'):
+            setattr(self, "medcostl" + ids, ttk.Label(medf, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf))
+            getattr(self, "medcoste" + ids).pack(side="left")
+        elif option == "Other":
+            getattr(self, "medotheropl" + ids).pack(side="left")
+            getattr(self, "medotherope" + ids).pack(side="left")
+            setattr(self, "medcostl" + ids, ttk.Label(medf, text="| Cost : "))
+            getattr(self, "medcostl" + ids).pack(side="left")
+            setattr(self, "medcoste" + ids, ttk.Entry(medf))
+            getattr(self, "medcoste" + ids).pack(side="left")
     # =========
     # End of functions
     # =========
