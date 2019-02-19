@@ -382,8 +382,8 @@ class medical_entry_window():
         getattr(self, "medvactype" + ids).bind("<<ComboboxSelected>>", lambda c: self._vac_type_selection(button_id))
         
         # vac due date + label
-        setattr(self, "medduedatel" + ids, ttk.Label(medf2, text="| Next Vac Due : "))
-        setattr(self, "medduedate" + ids, DateEntry(medf2))
+        # setattr(self, "medduedatel" + ids, ttk.Label(medf2, text="| Next Vac Due : "))
+        # setattr(self, "medduedate" + ids, DateEntry(medf2))
 
 
 
@@ -487,8 +487,8 @@ class medical_entry_window():
         medf = getattr(self, "medf" + ids)
         medf2 = getattr(self, "medf2" + ids)
         # unpack everything first
-        getattr(self, "medduedate" + ids).pack_forget()
-        getattr(self, "medduedatel" + ids).pack_forget()
+        # getattr(self, "medduedate" + ids).pack_forget()
+        # getattr(self, "medduedatel" + ids).pack_forget()
         getattr(self, "medcostl" + ids).destroy()
         getattr(self, "medcoste" + ids).destroy()
         medf2.pack_forget()
@@ -500,8 +500,8 @@ class medical_entry_window():
             getattr(self, "medcostl" + ids).pack(side="left")
             setattr(self, "medcoste" + ids, ttk.Entry(medf2))
             getattr(self, "medcoste" + ids).pack(side="left")
-            getattr(self, "medduedatel" + ids).pack(side="left")
-            getattr(self, "medduedate" + ids).pack(side="left")
+            # getattr(self, "medduedatel" + ids).pack(side="left")
+            # getattr(self, "medduedate" + ids).pack(side="left")
 
     # =========
     # End of functions
