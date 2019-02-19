@@ -8,8 +8,10 @@ import tkinter.ttk as ttk
 import configparser
 from TreeBuild import TreeBuild
 from PIL import Image, ImageTk
-from tkcalendar import Calendar, DateEntry
+from tkcalendar import Calendar
+from DateEntry import DateEntry
 from datetime import datetime
+from datetime import timedelta
 
 
 class build_main_window():
@@ -382,9 +384,8 @@ class medical_entry_window():
         getattr(self, "medvactype" + ids).bind("<<ComboboxSelected>>", lambda c: self._vac_type_selection(button_id))
         
         # vac due date + label
-        # setattr(self, "medduedatel" + ids, ttk.Label(medf2, text="| Next Vac Due : "))
-        # setattr(self, "medduedate" + ids, DateEntry(medf2))
-
+        setattr(self, "medduedatel" + ids, ttk.Label(medf2, text="| Next Vac Due : "))
+        setattr(self, "medduedate" + ids, DateEntry(medf2))
 
 
     def _get_next_row_id(self):
@@ -487,8 +488,8 @@ class medical_entry_window():
         medf = getattr(self, "medf" + ids)
         medf2 = getattr(self, "medf2" + ids)
         # unpack everything first
-        # getattr(self, "medduedate" + ids).pack_forget()
-        # getattr(self, "medduedatel" + ids).pack_forget()
+        getattr(self, "medduedate" + ids).pack_forget()
+        getattr(self, "medduedatel" + ids).pack_forget()
         getattr(self, "medcostl" + ids).destroy()
         getattr(self, "medcoste" + ids).destroy()
         medf2.pack_forget()
@@ -500,8 +501,20 @@ class medical_entry_window():
             getattr(self, "medcostl" + ids).pack(side="left")
             setattr(self, "medcoste" + ids, ttk.Entry(medf2))
             getattr(self, "medcoste" + ids).pack(side="left")
-            # getattr(self, "medduedatel" + ids).pack(side="left")
-            # getattr(self, "medduedate" + ids).pack(side="left")
+            getattr(self, "medduedatel" + ids).pack(side="left")
+            getattr(self, "medduedate" + ids).pack(side="left")
+        # Inserting Dates into datebox.
+        due_date_text = datetime.strptime(self.calendar.get_date(), '%d/%m/%Y')
+        if option == "First":
+            due_date_text += timedelta(days=28)
+            due_date_text = due_date_text.strftime('%Y-%m-%d')
+            getattr(self, "medduedate" + ids).delete(0, 'end')
+            getattr(self, "medduedate" + ids).insert(0, due_date_text)
+        elif option in ("Second", "Top-Up"):
+            due_date_text += timedelta(days=365)
+            due_date_text = due_date_text.strftime('%Y-%m-%d')
+            getattr(self, "medduedate" + ids).delete(0, 'end')
+            getattr(self, "medduedate" + ids).insert(0, due_date_text)
 
     # =========
     # End of functions

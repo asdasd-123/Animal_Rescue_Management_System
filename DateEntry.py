@@ -51,7 +51,8 @@ class DateEntry(ttk.Entry):
         self.bind('<FocusIn>', self._focus_in)
         self.bind('<FocusOut>', self._focus_out)
         self.insert(0, text)
-        self.configure(foreground='grey')
+        if prefill:
+            self.configure(foreground='grey')
 
     def _focus_in(self, event=None):
         if self.text == self.get() and not self.prefill:
