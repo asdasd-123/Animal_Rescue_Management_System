@@ -157,7 +157,7 @@ class build_main_window():
         title.pack(side="top", anchor="w")
 
         # -- Load logo and create label for it
-        logo_im = Image.open("catlogo.png")
+        logo_im = Image.open("logo.png")
         logo_ph = ImageTk.PhotoImage(logo_im)
         logo_img = ttk.Label(self.logo_frame, image=logo_ph)
         logo_img.image = logo_ph
