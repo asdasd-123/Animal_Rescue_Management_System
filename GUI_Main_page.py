@@ -296,6 +296,9 @@ class medical_entry_window():
                                      search=True,
                                      data=md[1],
                                      headings=md[0])
+        self.animal_tree.tree.bind(
+            "<Double-1>",
+            lambda c: self._add_animal())
 
         # - Header frame items
         # - heading label
