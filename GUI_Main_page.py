@@ -447,7 +447,6 @@ class medical_entry_window():
     # =========
     # Functions for controlling row contents when options selected
     # =========
-    # Medical Type Combobox (vet/other)
     def _med_type_selection(self, button_id):
         ids = str(button_id)
         option = getattr(self, "medtype" + ids).get()
