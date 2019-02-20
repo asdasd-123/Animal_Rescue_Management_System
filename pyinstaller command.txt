@@ -1,0 +1,1 @@
+pyinstaller -y -F --add-data "Records";"Records/" --add-data "Config";"Config/" --add-data "logo.png";"." --additional-hooks-dir hooks/ "Animal_rescue.py"
