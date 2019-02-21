@@ -225,7 +225,8 @@ class build_main_window():
 
 
 class pop_up_window():
-    def __init__(self, master, main_win=None, size="480x300", heading="", text=""):
+    def __init__(self, master, main_win=None, size="480x300",
+                 heading="", text=""):
         self.master = master
         self.size = size
         self.heading = heading + '\n'
@@ -257,14 +258,14 @@ class pop_up_window():
         self.text_box.config(yscrollcommand=text_scroll.set)
         self.text_box.delete("1.0", 'end')
         self.text_box.insert("1.0", self.text)
-    
+
     def replace_text(self, heading='', text=''):
         if text != '':
             self.text_box.delete("1.0", 'end')
             self.text_box.insert("1.0", str(text))
         if heading != '':
             self.header['text'] = str(heading) + "\n"
-        
+
 
 class medical_entry_window():
     def __init__(self, master, conn, main_win):
