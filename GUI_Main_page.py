@@ -224,6 +224,48 @@ class build_main_window():
                           window_type="edit", animal_id=animal_id)
 
 
+class pop_up_window():
+    def __init__(self, master, main_win=None, size="480x300", heading="", text=""):
+        self.master = master
+        self.size = size
+        self.heading = heading + '\n'
+        self.text = text
+        self.master.geometry(size)
+        self._build_widgets()
+
+    def _build_widgets(self):
+        # Header label
+        self.header = ttk.Label(self.master, text=self.heading)
+        self.header.pack(side="top", fill="x", anchor="n")
+
+        # Ok button
+        button = ttk.Button(self.master, text="OK",
+                            command=lambda: self.master.destroy())
+        button.pack_propagate(0)
+        button.pack(side="bottom", fill="x")
+
+        # Text frame
+        text_frame = ttk.Frame(self.master)
+        text_frame.pack(side="top", anchor="n", fill="both", expand=True)
+
+        # Text part
+        text_scroll = tk.Scrollbar(text_frame)
+        self.text_box = tk.Text(text_frame)
+        text_scroll.pack(side="right", fill="y")
+        self.text_box.pack(side="left", fill="both", expand=True)
+        text_scroll.config(command=self.text_box.yview)
+        self.text_box.config(yscrollcommand=text_scroll.set)
+        self.text_box.delete("1.0", 'end')
+        self.text_box.insert("1.0", self.text)
+    
+    def replace_text(self, heading='', text=''):
+        if text != '':
+            self.text_box.delete("1.0", 'end')
+            self.text_box.insert("1.0", str(text))
+        if heading != '':
+            self.header['text'] = str(heading) + "\n"
+        
+
 class medical_entry_window():
     def __init__(self, master, conn, main_win):
         self.conn = conn
@@ -236,6 +278,7 @@ class medical_entry_window():
         self._build_frames()
         self._build_widgets()
         self.master.deiconify()     # show window
+        self.popup = 'not created'  # Check used later to see if popup created.
 
     def _build_frames(self):
         # Right frame
@@ -627,6 +670,8 @@ class medical_entry_window():
         self.animal_tree.refresh_data(md[1])
 
     def _check_errors(self):
+        """Returns True if no errors found.
+        Otherwise returns False and opens a pop-up box with errors found"""
         error = False
         err_text = ''
         for row, key in enumerate(self.med_dict):
@@ -745,9 +790,24 @@ class medical_entry_window():
             if row_error:
                 error = True
                 err_text += row_error_header + row_error_text + '\n'
-                return
         if error:
-            print(err_text)
+            self.open_popup_window(heading="Errors found in entries",
+                                   text=err_text)
+            return False
+        else:
+            return True
+
+    def open_popup_window(self, heading, text):
+        if self.popup == 'not created':
+            self.popup = pop_up_window(tk.Toplevel(self.master),
+                                       heading=heading,
+                                       text=text)
+            self.popup.text_box.lift()
+            self.popup.text_box.focus_force()
+        else:
+            self.popup.replace_text(text=text)
+            self.popup.text_box.lift()
+            self.popup.text_box.focus_force()
 
 
 class animal_window():
