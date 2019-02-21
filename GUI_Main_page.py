@@ -255,6 +255,11 @@ class medical_entry_window():
         self.animal_tree_frame = ttk.Frame(self.right_frame)
         self.animal_tree_frame.pack(side="top", fill="both", expand="True")
 
+        # - Add/Cancel buttons frame
+        self.buttons_frame = ttk.Frame(self.right_frame)
+        self.buttons_frame.pack(side="bottom", expand=True,
+                                fill="x", anchor="s")
+
         # Left frame
         self.left_frame = ttk.Frame(self.master, style="pink.TFrame")
         self.left_frame.pack(side="left", fill="both", expand=True)
@@ -300,7 +305,15 @@ class medical_entry_window():
             "<Double-1>",
             lambda c: self._add_animal())
 
-        # - Header frame items
+        # cancel / submit button
+        self.submit = ttk.Button(self.buttons_frame, text="Submit",
+                                 command=self._check_errors)
+        self.submit.pack(side="left", fill="x")
+        self.cancel = ttk.Button(self.buttons_frame, text="Cancel",
+                                 command=self.close_window)
+        self.cancel.pack(side="right", fill="x")
+
+        # Header frame items
         # - heading label
         heading = ttk.Label(self.header_frame, text="Medical Entries",
                             font=self.main_win.font_title)
@@ -361,6 +374,8 @@ class medical_entry_window():
         name_text = ": " + add_name + " | "
         setattr(self, "medname" + ids, ttk.Label(medf, text=name_text))
         getattr(self, "medname" + ids).pack(side="left")
+        # Used when building error log on submission.
+        setattr(self, "mednametext" + ids, add_name)
 
         # Med_type combobox
         setattr(self, "medtype" + ids, ttk.Combobox(medf, state="readonly",
@@ -387,7 +402,7 @@ class medical_entry_window():
             "<<ComboboxSelected>>",
             lambda c: self._op_type_selection(button_id))
 
-        # -- (chip) chiplabel
+        # -- (chip) chiplabel/num
         setattr(self, "chipnuml" + ids, ttk.Label(medf, text="| Chip Num : "))
         setattr(self, "chipnume" + ids, ttk.Entry(medf))
 
@@ -601,12 +616,138 @@ class medical_entry_window():
     # End of functions
     # =========
 
+    def close_window(self):
+        self.master.destroy()
+
     def refresh_animal_data(self):
         md_query = "SELECT * FROM Animal_ID_View"
         if self.in_rescue_var.get() == 1:
             md_query += "_Active"
         md = basic_db_query(self.conn, md_query)
         self.animal_tree.refresh_data(md[1])
+
+    def _check_errors(self):
+        error = False
+        err_text = ''
+        for row, key in enumerate(self.med_dict):
+            # get initial values
+            rownum = row + 1
+            ids = str(key)                                      # row-ID
+            animal_name = getattr(self, "mednametext" + ids)    # Animal Name
+
+            # row-error variables.
+            row_error = False
+            row_error_header = f"Row {rownum}: Errors Found ({animal_name})\n"
+            row_error_text = ''
+
+            # - Check first combobox Vet/Other
+            combo = getattr(self, "medtype" + ids).get()
+            if combo == "Vet":
+                # Check if VetName supplied
+                vetname = getattr(self, "medvetnamee" + ids).get()
+                if vetname == '':
+                    row_error = True
+                    row_error_text += '  -  Vet name missing\n'
+
+                # Check vet appointment type
+                app_type = getattr(self, "medoptype" + ids).get()
+                # If blank
+                if app_type == "":
+                    row_error = True
+                    row_error_text += '  -  Select an appointment type\n'
+                # If Chip Num
+                elif app_type == "Chip":
+                    # Check chip number
+                    chip_num = getattr(self, "chipnume" + ids).get()
+                    if chip_num == '':
+                        row_error = True
+                        row_error_text += '  -  Enter the chip number\n'
+                    # Check cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    if cost == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a cost (even 0)\n'
+                # If Checkup
+                elif app_type == "Checkup":
+                    # Check cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    if cost == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a cost (even 0)\n'
+                # If Neuter
+                elif app_type == "Neuter":
+                    # Check cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    if cost == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a cost (even 0)\n'
+                # If Other
+                elif app_type == "Other":
+                    # Check cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    if cost == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a cost (even 0)\n'
+                    # Check Procedure
+                    procedure = getattr(self, "medotherope" + ids).get()
+                    if procedure == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a procedure\n'
+                # If vaccination
+                elif app_type == "Vaccination":
+                    # Check vac-type box
+                    vac_type = getattr(self, "medvactype" + ids).get()
+                    if vac_type == '':
+                        row_error = True
+                        row_error_text += '  -  Select a vaccination type\n'
+                    else:
+                        # Check cost
+                        cost = getattr(self, "medcoste" + ids).get()
+                        if cost == '':
+                            row_error = True
+                            row_error_text += '  -  Enter a cost (even 0)\n'
+                        # Check Date is valid
+                        valid_date = getattr(self, "medduedate" + ids).is_valid
+                        if not valid_date:
+                            row_error = True
+                            row_error_text += '  -  Enter a valid date\n'
+            # If Other
+            elif combo == "Other":
+                # Check other-type combobox
+                # If blank
+                othertype = getattr(self, "medotheropl" + ids)
+                if othertype == '':
+                    row_error = True
+                    row_error_text += '  -  Pick a treatment type\n'
+                # if Flear or worming
+                elif othertype in ('Flea', 'Worming', 'Flea and Worming'):
+                    # Check cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    if cost == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a cost (even 0 is ok)\n'
+                elif othertype == 'Other':
+                    # Check cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    if cost == '':
+                        row_error = True
+                        row_error_text += '  -  Enter a cost (even 0 is ok)\n'
+                    # Check Procedure
+                    procedure = getattr(self, "medotherope" + ids).get()
+                    if procedure == '':
+                        row_error = True
+                        row_error_text += '  -  Enter the procedure\n'
+            elif combo == "":
+                row_error = True
+                row_error_text += '  -  Select an item in the drop-down box\n'
+
+            # If errors have been detected. add the error text to the log.
+            if row_error:
+                error = True
+                err_text += row_error_header + row_error_text + '\n'
+                return
+        if error:
+            print(err_text)
 
 
 class animal_window():
