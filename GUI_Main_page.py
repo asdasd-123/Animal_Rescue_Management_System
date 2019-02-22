@@ -667,7 +667,144 @@ class medical_entry_window():
     # =========
 
     def _submit_records(self):
-        self._check_errors()
+        if not self._check_errors() or len(self.med_dict) == 0:
+            return
+
+        # =============
+        # Building up the dictionary used to generate SQL
+        # =============
+        date = self.calendar.get_date()
+        date = datetime.strptime(date, '%d/%m/%Y').strftime('%Y-%m-%d')
+        for k, v in self.med_dict.items():
+            # get initial values
+            animal_id = int(v)
+            ids = str(k)        # widget ID as STR for getting values
+            value_dict = {}     # empty dict used to contain values for SQL 
+
+            # Add Animal
+            value_dict['Animal_ID'] = animal_id
+
+            # Add Date
+            value_dict['Date'] = date
+
+            # - Check first combobox Vet/Other
+            combo = getattr(self, "medtype" + ids).get()
+            if combo == "Vet":
+                value_dict['Medical_Type'] = combo
+                # Add VetName
+                vetname = getattr(self, "medvetnamee" + ids).get()
+                value_dict['Vet_Name'] = vetname
+
+                # Check vet appointment type
+                app_type = getattr(self, "medoptype" + ids).get()
+                if app_type == "Chip":
+                    # Add Medical Type:
+                    value_dict['Procedure'] = app_type
+
+                    # Add chip number
+                    chip_num = getattr(self, "chipnume" + ids).get()
+                    value_dict['Chip_Num'] = chip_num
+
+                    # Add Cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    value_dict['Cost'] = float(cost)
+
+                # If Checkup
+                elif app_type == "Checkup":
+                    # Add Medical Type:
+                    value_dict['Procedure'] = app_type
+
+                    # Add Cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    value_dict['Cost'] = float(cost)
+
+                    # Add Notes
+                    notes = getattr(self, "mednotese" + ids).get()
+                    value_dict['Notes'] = notes
+
+                # If Neuter
+                elif app_type == "Neuter":
+                    # Add Medical Type:
+                    value_dict['Procedure'] = app_type
+
+                    # Add Cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    value_dict['Cost'] = float(cost)
+
+                # If Other
+                elif app_type == "Other":
+                    # Add Medical Type:
+                    procedure = getattr(self, "medotherope" + ids).get()
+                    value_dict['Procedure'] = procedure
+
+                    # Add Cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    value_dict['Cost'] = float(cost)
+
+                    # Add Notes
+                    notes = getattr(self, "mednotese" + ids).get()
+                    value_dict['Notes'] = notes
+
+                # If vaccination
+                elif app_type == "Vaccination":
+                    # Add Medical Type:
+                    procedure = getattr(self, "medotherope" + ids).get()
+                    value_dict['Procedure'] = procedure
+
+                    # vac-type
+                    vac_type = getattr(self, "medvactype" + ids).get()
+                    if vac_type == 'First':
+                        value_dict['Vac_Type'] = 1
+                    elif vac_type == 'Second':
+                        value_dict['Vac_Type'] = 2
+                    elif vac_type == 'Top-Up':
+                        value_dict['Vac_Type'] = 3
+                   
+                    # Add Cost
+                    cost = getattr(self, "medcoste" + ids).get()
+                    value_dict['Cost'] = float(cost)
+
+                    # Due date
+                    due_date = getattr(self, "medduedate" + ids).get_date()
+                    value_dict['Due_Date'] = due_date
+
+            # If Other
+            elif combo == "Other":
+                value_dict['Medical_Type'] = combo
+                
+                # Add Cost
+                cost = getattr(self, "medcoste" + ids).get()
+                value_dict['Cost'] = float(cost)
+                
+                # Check other-type box
+                othertype = getattr(self, "medotheropl" + ids)
+                if othertype in ('Flea', 'Worming', 'Flea and Worming'):
+                    value_dict['Procedure'] = othertype
+
+                elif othertype == 'Other':
+                    procedure = getattr(self, "medotherope" + ids).get()
+                    value_dict['Procedure'] = procedure
+
+        # =============
+        # Using Dictionary to generate insert str
+        # =============
+        sqlstr = 'INSERT INTO Medical (\n'
+        # Adding column names
+        for k, v in value_dict.items():
+            sqlstr += str(k) + ',\n'
+        sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
+
+        sqlstr += ')\nVALUES (\n'
+
+        # Adding value headings.
+        for k, v in value_dict.items():
+            sqlstr += ':' + str(k) + ',\n'
+        sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
+
+        sqlstr += ')'
+        print(sqlstr)
+        print(value_dict)
+        adv_db_query(self.conn, sqlstr, value_dict, returnlist=False)
 
     def close_window(self):
         self.master.destroy()
