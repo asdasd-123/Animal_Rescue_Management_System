@@ -225,14 +225,20 @@ class build_main_window():
 
 
 class pop_up_window():
-    def __init__(self, master, main_win=None, size="480x300",
+    def __init__(self, master, main_win, size="480x300",
                  heading="", text=""):
         self.master = master
         self.size = size
         self.heading = heading + '\n'
         self.text = text
+        self.main_win = main_win
         self.master.geometry(size)
         self._build_widgets()
+        self.master.protocol("WM_DELETE_WINDOW", self._on_closing)
+
+    def _on_closing(self):
+        self.main_win.popup = 'not created'
+        self.master.destroy()
 
     def _build_widgets(self):
         # Header label
@@ -241,7 +247,7 @@ class pop_up_window():
 
         # Ok button
         button = ttk.Button(self.master, text="OK",
-                            command=lambda: self.master.destroy())
+                            command=lambda: self._on_closing())
         button.pack_propagate(0)
         button.pack(side="bottom", fill="x")
 
@@ -351,7 +357,7 @@ class medical_entry_window():
 
         # cancel / submit button
         self.submit = ttk.Button(self.buttons_frame, text="Submit",
-                                 command=self._check_errors)
+                                 command=self._submit_records)
         self.submit.pack(side="left", fill="x")
         self.cancel = ttk.Button(self.buttons_frame, text="Cancel",
                                  command=self.close_window)
@@ -660,6 +666,9 @@ class medical_entry_window():
     # End of functions
     # =========
 
+    def _submit_records(self):
+        self._check_errors()
+
     def close_window(self):
         self.master.destroy()
 
@@ -802,7 +811,8 @@ class medical_entry_window():
         if self.popup == 'not created':
             self.popup = pop_up_window(tk.Toplevel(self.master),
                                        heading=heading,
-                                       text=text)
+                                       text=text,
+                                       main_win=self)
             self.popup.text_box.lift()
             self.popup.text_box.focus_force()
         else:
