@@ -748,7 +748,7 @@ class medical_entry_window():
                 # If vaccination
                 elif app_type == "Vaccination":
                     # Add Medical Type:
-                    procedure = getattr(self, "medotherope" + ids).get()
+                    procedure = "Vaccination"
                     value_dict['Procedure'] = procedure
 
                     # vac-type
@@ -785,26 +785,26 @@ class medical_entry_window():
                     procedure = getattr(self, "medotherope" + ids).get()
                     value_dict['Procedure'] = procedure
 
-        # =============
-        # Using Dictionary to generate insert str
-        # =============
-        sqlstr = 'INSERT INTO Medical (\n'
-        # Adding column names
-        for k, v in value_dict.items():
-            sqlstr += str(k) + ',\n'
-        sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
+            # =============
+            # Using Dictionary to generate insert str
+            # =============
+            sqlstr = 'INSERT INTO Medical (\n'
+            # Adding column names
+            for k, v in value_dict.items():
+                sqlstr += str(k) + ',\n'
+            sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
 
-        sqlstr += ')\nVALUES (\n'
+            sqlstr += ')\nVALUES (\n'
 
-        # Adding value headings.
-        for k, v in value_dict.items():
-            sqlstr += ':' + str(k) + ',\n'
-        sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
+            # Adding value headings.
+            for k, v in value_dict.items():
+                sqlstr += ':' + str(k) + ',\n'
+            sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
 
-        sqlstr += ')'
-        print(sqlstr)
-        print(value_dict)
-        adv_db_query(self.conn, sqlstr, value_dict, returnlist=False)
+            sqlstr += ')'
+            print(sqlstr)
+            print(value_dict)
+            adv_db_query(self.conn, sqlstr, value_dict, returnlist=False)
 
     def close_window(self):
         self.master.destroy()
