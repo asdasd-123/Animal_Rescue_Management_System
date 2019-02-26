@@ -311,7 +311,7 @@ class medical_entry_window():
                                 fill="x", anchor="s")
 
         # Left frame
-        self.left_frame = ttk.Frame(self.master, style="pink.TFrame")
+        self.left_frame = ttk.Frame(self.master)
         self.left_frame.pack(side="left", fill="both", expand=True)
 
         # - Header frame
@@ -681,6 +681,9 @@ class medical_entry_window():
             ids = str(k)        # widget ID as STR for getting values
             value_dict = {}     # empty dict used to contain values for SQL 
 
+            # Set chip-update flag to false
+            chip_update = False
+
             # Add Animal
             value_dict['Animal_ID'] = animal_id
 
@@ -700,6 +703,9 @@ class medical_entry_window():
                 if app_type == "Chip":
                     # Add Medical Type:
                     value_dict['Procedure'] = app_type
+
+                    # enable chip updating after medical entry
+                    chip_update = True
 
                     # Add chip number
                     chip_num = getattr(self, "chipnume" + ids).get()
@@ -766,18 +772,19 @@ class medical_entry_window():
 
                     # Due date
                     due_date = getattr(self, "medduedate" + ids).get_date()
+                    due_date = due_date.strftime('%Y-%m-%d')
                     value_dict['Due_Date'] = due_date
 
             # If Other
             elif combo == "Other":
                 value_dict['Medical_Type'] = combo
-                
+
                 # Add Cost
                 cost = getattr(self, "medcoste" + ids).get()
                 value_dict['Cost'] = float(cost)
-                
+
                 # Check other-type box
-                othertype = getattr(self, "medotheropl" + ids)
+                othertype = getattr(self, "medfleatype" + ids).get()
                 if othertype in ('Flea', 'Worming', 'Flea and Worming'):
                     value_dict['Procedure'] = othertype
 
@@ -792,19 +799,34 @@ class medical_entry_window():
             # Adding column names
             for k, v in value_dict.items():
                 sqlstr += str(k) + ',\n'
-            sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
+            sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command&newline
 
             sqlstr += ')\nVALUES (\n'
 
             # Adding value headings.
             for k, v in value_dict.items():
                 sqlstr += ':' + str(k) + ',\n'
-            sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command and newline
+            sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command&newline
 
             sqlstr += ')'
-            print(sqlstr)
-            print(value_dict)
             adv_db_query(self.conn, sqlstr, value_dict, returnlist=False)
+
+            # =============
+            # Updating chip info if necesarry
+            # =============
+            if chip_update:
+                sqlstr = """
+                         UPDATE Animal
+                         SET Chip_Num = :Chip_Num
+                         WHERE ID = :ID
+                         """
+
+                chip_dict = {}
+                chip_dict['Chip_Num'] = chip_num
+                chip_dict['ID'] = animal_id
+                adv_db_query(self.conn, sqlstr, chip_dict, returnlist=False)
+            self.main_win.refresh_main_tree()
+
 
     def close_window(self):
         self.master.destroy()
@@ -907,7 +929,7 @@ class medical_entry_window():
             elif combo == "Other":
                 # Check other-type combobox
                 # If blank
-                othertype = getattr(self, "medotheropl" + ids)
+                othertype = getattr(self, "medfleatype" + ids).get()
                 if othertype == '':
                     row_error = True
                     row_error_text += '  -  Pick a treatment type\n'
