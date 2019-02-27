@@ -826,7 +826,7 @@ class medical_entry_window():
                 chip_dict['ID'] = animal_id
                 adv_db_query(self.conn, sqlstr, chip_dict, returnlist=False)
             self.main_win.refresh_main_tree()
-
+        self.close_window()
 
     def close_window(self):
         self.master.destroy()
