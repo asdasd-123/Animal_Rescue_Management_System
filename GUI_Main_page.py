@@ -679,7 +679,7 @@ class medical_entry_window():
             # get initial values
             animal_id = int(v)
             ids = str(k)        # widget ID as STR for getting values
-            value_dict = {}     # empty dict used to contain values for SQL 
+            value_dict = {}     # empty dict used to contain values for SQL
 
             # Set chip-update flag to false
             chip_update = False
@@ -765,7 +765,7 @@ class medical_entry_window():
                         value_dict['Vac_Type'] = 2
                     elif vac_type == 'Top-Up':
                         value_dict['Vac_Type'] = 3
-                   
+
                     # Add Cost
                     cost = getattr(self, "medcoste" + ids).get()
                     value_dict['Cost'] = float(cost)
