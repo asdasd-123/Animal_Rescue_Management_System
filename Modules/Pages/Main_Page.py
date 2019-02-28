@@ -47,6 +47,9 @@ class build_main_window():
         # Title Font settings
         self.font_title = tkfont.Font(size=30, weight='bold')
 
+        # Sub-headings labels
+        self.font_sub_title = tkfont.Font(size=18)
+
         # Search box font
         self.font_search = tkfont.Font(size=12)
 
@@ -158,6 +161,7 @@ class build_main_window():
         title = ttk.Label(self.header_filter, text=self.title)
         title['font'] = self.font_title
         title.pack(side="top", anchor="w")
+
 
         # -- Load logo and create label for it
         logo_im = Image.open("logo.png")

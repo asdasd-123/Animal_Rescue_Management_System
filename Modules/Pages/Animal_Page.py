@@ -13,6 +13,7 @@ import tkinter as tk
 from tkcalendar import Calendar
 from Modules.Other_Modules.SQLite_functions import (basic_db_query,
                                                     adv_db_query)
+from Modules.Other_Modules.TreeBuild import TreeBuild
 from datetime import datetime
 
 
@@ -114,7 +115,18 @@ class animal_window():
         self.central_frame = ttk.Frame(self.left_frame, style="brown.TFrame")
         self.central_frame.pack(side="top", fill="both", expand=True)
 
+        # -- Medical history frame
+        self.med_hist_frame = ttk.Frame(self.central_frame, style="blue.TFrame")
+        self.med_hist_frame.pack(side="left", fill="both")
+
+        # -- homing history frame
+        self.home_hist_frame = ttk.Frame(self.central_frame)
+        self.home_hist_frame.pack(side="left", fill="both")
+
     def _build_widgets(self):
+        # ===============
+        # Title widgets
+        # ===============
         # - Title Labels
         self.id_label = ttk.Label(
             self.title_frame,
@@ -123,6 +135,9 @@ class animal_window():
         self.name_entry = ttk.Entry(self.title_frame, font=self.font_title)
         self.name_entry.pack(side="left")
 
+        # ===============
+        # Right frame, notes widgets
+        # ===============
         # - Notes items.
         # - Notes label
         self.notes_l = ttk.Label(self.note_header_frame,
@@ -137,6 +152,9 @@ class animal_window():
         notes_scroll.config(command=self.note_text.yview)
         self.note_text.config(yscrollcommand=notes_scroll.set)
 
+        # ===============
+        # animal data widgets
+        # ===============
         # - Column 0 items
         # - Colour
         self.colour_0 = ttk.Label(self.data_col[0][0], text="Colour: ")
@@ -197,6 +215,52 @@ class animal_window():
         self.dob_cal = Calendar(self.dob_col)
         self.dob_cal.pack(side="top", anchor="n", fill="x")
 
+        # ===============
+        # Medical history widgets
+        # ===============
+        # Medical history label
+        sql_query = f"""
+                    SELECT SUM(Cost)
+                    FROM Medical
+                    where Animal_ID = {self.animal_id}
+                    """
+        med_spend = basic_db_query(self.conn, sql_query)[1][0][0]
+        med_spend = round(med_spend, 2)
+        med_text = f"Medical History   -   Total Spend = £{med_spend}"
+        med_label = ttk.Label(self.med_hist_frame, text=med_text)
+        med_label['font'] = self.main_win.font_sub_title
+        med_label.pack(side="top", fill="x")
+
+        # Get medical history data from view
+        sql_query = """SELECT *
+                    FROM Animal_Page_Med_History
+                    WHERE Animal_ID = :ID"""
+        sql_dict = {'ID': self.animal_id}
+        med_results = adv_db_query(self.conn, sql_query, sql_dict)
+        med_tree = TreeBuild(self.med_hist_frame,
+                             search=True,
+                             data=med_results[1],
+                             widths=[0,100, 50, 500],
+                             headings=med_results[0])
+
+        # ===============
+        # Homing history widgets
+        # ===============
+        # Medical history label
+        home_label = ttk.Label(self.home_hist_frame,
+                              text="Homing History (Temp Data)")
+        home_label['font'] = self.main_win.font_sub_title
+        home_label.pack(side="top", fill="x")
+
+        # Temp table
+        hom_tree = TreeBuild(self.home_hist_frame,
+                             search=True,
+                             data=med_results[1],
+                             widths=[0,100, 50, 700],
+                             headings=med_results[0])
+        # ===============
+        # bottom-right save/submit widgets
+        # ===============
         # Cancel / submit / save changes buttons
         self.cancel = ttk.Button(self.right_button_frame, text="Cancel",
                                  command=self.close_window)
