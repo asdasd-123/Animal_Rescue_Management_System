@@ -233,6 +233,9 @@ class build_main_window():
                              widths=[40, 120, 80, 50, 2000],
                              data=med_results[1],
                              headings=med_results[0])
+        # Needed to stop linter from moaning about being un-used
+        # It will be used at a later date
+        med_tree
 
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"

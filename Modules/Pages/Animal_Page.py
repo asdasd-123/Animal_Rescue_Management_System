@@ -242,6 +242,9 @@ class animal_window():
                              data=med_results[1],
                              widths=[0, 100, 50, 500],
                              headings=med_results[0])
+        # Needed to stop linter from moaning about being un-used
+        # It will be used at a later date
+        med_tree
 
         # ===============
         # Homing history widgets
@@ -258,6 +261,10 @@ class animal_window():
                              data=med_results[1],
                              widths=[0, 100, 50, 700],
                              headings=med_results[0])
+        # Needed to stop linter from moaning about being un-used
+        # It will be used at a later date
+        hom_tree
+
         # ===============
         # bottom-right save/submit widgets
         # ===============
