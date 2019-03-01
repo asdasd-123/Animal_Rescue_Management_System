@@ -15,6 +15,7 @@ from Modules.Other_modules.SQLite_functions import basic_db_query
 from Modules.Other_modules.TreeBuild import TreeBuild
 from Modules.Pages.Medical_page import medical_entry_window
 from Modules.Pages.Animal_page import animal_window
+from Modules.Pages.Homing_page import homing_window
 
 
 class build_main_window():
@@ -185,6 +186,13 @@ class build_main_window():
             command=self.open_medical_entry_window)
         medical_entry_button.pack(side="left", anchor='nw', padx=6)
 
+        # Add new homing event button
+        homing_button = ttk.Button(
+            self.buttons_frame,
+            text="Home a " + animal_type,
+            command=self.open_homing_window)
+        homing_button.pack(side="left", anchor="nw", padx=6)
+
         # In Rescue checkbox
         self.in_rescue_var = tk.IntVar()
         self.in_rescue = ttk.Checkbutton(self.filters_frame,
@@ -251,6 +259,10 @@ class build_main_window():
     def open_medical_entry_window(self):
         self.med_win = medical_entry_window(tk.Toplevel(self.master),
                                             self.conn, self)
+
+    def open_homing_window(self):
+        self.homing_win = homing_window(tk.Toplevel(self.master),
+                                        self.conn, self)
 
     def open_animal_window(self, row_selected, event=None):
         region = self.main_tree.tree.identify("region", event.x, event.y)
