@@ -28,6 +28,8 @@ class build_main_window():
         self._setup_tabs()          # Setting up tabs (notebook) widget
         self._setup_tab_1_frames()  # Setting up tab1 (Dashboard) widgets
         self._setup_tab_1_widgets()
+        self._setup_tab_2_frames()
+        self._setup_tab_2_widgets()
 
     def _setup_window(self):
         # Get and read config
@@ -117,12 +119,12 @@ class build_main_window():
 
         # Setup the tab frames
         self.tab1 = ttk.Frame(note)
-        self.tab2 = ttk.Frame(note, style="tab2.TFrame")
+        self.tab2 = ttk.Frame(note)
         self.tab3 = ttk.Frame(note, style="tab3.TFrame")
 
         # Asign the above frames to tabs
         note.add(self.tab1, text="  Dashboard  ")
-        note.add(self.tab2, text="Tab two")
+        note.add(self.tab2, text="  Medical History  ")
         note.add(self.tab3, text="Tab three")
 
         # Packing the tabs widget to fill screen.
@@ -161,7 +163,6 @@ class build_main_window():
         title = ttk.Label(self.header_filter, text=self.title)
         title['font'] = self.font_title
         title.pack(side="top", anchor="w")
-
 
         # -- Load logo and create label for it
         logo_im = Image.open("logo.png")
@@ -207,6 +208,31 @@ class build_main_window():
             "<Double-1>",
             lambda c: self.open_animal_window(
                 self.main_tree.tree.item(self.main_tree.tree.focus()), c))
+
+    def _setup_tab_2_frames(self):
+        # Header Frame
+        self.med_header = ttk.Frame(self.tab2)
+        self.med_header.pack(side="top", fill="x")
+
+        # Medical history frame
+        self.med_tree_frame = ttk.Frame(self.tab2)
+        self.med_tree_frame.pack(side="top", fill="both", expand=True)
+
+    def _setup_tab_2_widgets(self):
+        # Title
+        med_title = ttk.Label(self.med_header, text="Medical History")
+        med_title['font'] = self.font_title
+        med_title.pack(side="top", anchor="n")
+
+        # Medical History Tree
+        # Get data
+        sql_query = "SELECT * FROM Main_Page_Med_History"
+        med_results = basic_db_query(self.conn, sql_query)
+        med_tree = TreeBuild(self.med_tree_frame,
+                             search=True,
+                             widths=[40, 120, 80, 50, 2000],
+                             data=med_results[1],
+                             headings=med_results[0])
 
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"

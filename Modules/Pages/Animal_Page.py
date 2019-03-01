@@ -116,7 +116,7 @@ class animal_window():
         self.central_frame.pack(side="top", fill="both", expand=True)
 
         # -- Medical history frame
-        self.med_hist_frame = ttk.Frame(self.central_frame, style="blue.TFrame")
+        self.med_hist_frame = ttk.Frame(self.central_frame)
         self.med_hist_frame.pack(side="left", fill="both")
 
         # -- homing history frame
@@ -240,7 +240,7 @@ class animal_window():
         med_tree = TreeBuild(self.med_hist_frame,
                              search=True,
                              data=med_results[1],
-                             widths=[0,100, 50, 500],
+                             widths=[0, 100, 50, 500],
                              headings=med_results[0])
 
         # ===============
@@ -248,7 +248,7 @@ class animal_window():
         # ===============
         # Medical history label
         home_label = ttk.Label(self.home_hist_frame,
-                              text="Homing History (Temp Data)")
+                               text="Homing History (Temp Data)")
         home_label['font'] = self.main_win.font_sub_title
         home_label.pack(side="top", fill="x")
 
@@ -256,7 +256,7 @@ class animal_window():
         hom_tree = TreeBuild(self.home_hist_frame,
                              search=True,
                              data=med_results[1],
-                             widths=[0,100, 50, 700],
+                             widths=[0, 100, 50, 700],
                              headings=med_results[0])
         # ===============
         # bottom-right save/submit widgets
