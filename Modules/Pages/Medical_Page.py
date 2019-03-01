@@ -10,13 +10,13 @@ when adding multiple animals.
 """
 import tkinter as tk
 import tkinter.ttk as ttk
-from Modules.Other_Modules.SQLite_functions import (basic_db_query,
+from Modules.Other_modules.SQLite_functions import (basic_db_query,
                                                     adv_db_query)
-from Modules.Other_Modules.TreeBuild import TreeBuild
-from Modules.Other_Modules.DateEntry import DateEntry
+from Modules.Other_modules.TreeBuild import TreeBuild
+from Modules.Other_modules.DateEntry import DateEntry
 from datetime import datetime, timedelta
 from tkcalendar import Calendar
-from Modules.Other_Modules.Pop_up import pop_up_window
+from Modules.Other_modules.Pop_up import pop_up_window
 
 
 class medical_entry_window():

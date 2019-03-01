@@ -11,9 +11,9 @@ import tkinter.ttk as ttk
 import tkinter.font as tkfont
 import tkinter as tk
 from tkcalendar import Calendar
-from Modules.Other_Modules.SQLite_functions import (basic_db_query,
+from Modules.Other_modules.SQLite_functions import (basic_db_query,
                                                     adv_db_query)
-from Modules.Other_Modules.TreeBuild import TreeBuild
+from Modules.Other_modules.TreeBuild import TreeBuild
 from datetime import datetime
 
 

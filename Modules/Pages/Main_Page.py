@@ -11,10 +11,10 @@ import tkinter.font as tkfont
 import tkinter.ttk as ttk
 import configparser
 from PIL import Image, ImageTk
-from Modules.Other_Modules.SQLite_functions import basic_db_query
-from Modules.Other_Modules.TreeBuild import TreeBuild
-from Modules.Pages.Medical_Page import medical_entry_window
-from Modules.Pages.Animal_Page import animal_window
+from Modules.Other_modules.SQLite_functions import basic_db_query
+from Modules.Other_modules.TreeBuild import TreeBuild
+from Modules.Pages.Medical_page import medical_entry_window
+from Modules.Pages.Animal_page import animal_window
 
 
 class build_main_window():
