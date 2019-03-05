@@ -4,10 +4,12 @@ Homing Page:
 This page will be used when homing an animal to a new owner.
 """
 import tkinter as tk
+from tkinter import messagebox
 import tkinter.ttk as ttk
 from tkcalendar import Calendar
-from Modules.Other_modules.SQLite_functions import (basic_db_query)
+from Modules.Other_modules.SQLite_functions import (basic_db_query, adv_db_query)
 from Modules.Other_modules.TreeBuild import TreeBuild
+from datetime import datetime
 
 
 class homing_window():
@@ -133,7 +135,7 @@ class homing_window():
             lambda c: self._add_animal())
 
         # cancel / submit button
-        self.submit = ttk.Button(self.buttons_frame, text="Submit")
+        self.submit = ttk.Button(self.buttons_frame, text="Submit", command=self._submit_entries)
         self.submit.pack(side="left", fill="x")
         self.cancel = ttk.Button(self.buttons_frame, text="Cancel",
                                  command=self.close_window)
@@ -156,7 +158,7 @@ class homing_window():
         type_label.pack(side="top", fill="x", pady=self.col_paddl)
         spacer = ttk.Label(self.data_col[0][0], text="")
         spacer.pack(side="top", fill="x", pady=self.col_paddl)
-        self.home_type = ''
+        self.home_type = tk.StringVar()
         self.radio_home = ttk.Radiobutton(self.data_col[0][1], value="home", text="Home to new owner", variable=self.home_type)
         self.radio_home.pack(side="top", fill="x", pady=self.col_padd)
         self.radio_home.invoke()
@@ -188,7 +190,7 @@ class homing_window():
         self.town_e.pack(side="top", fill="x", pady=self.col_padd)
 
         # County
-        county_l = ttk.Label(self.data_col[0][0], text="County 1")
+        county_l = ttk.Label(self.data_col[0][0], text="County")
         county_l.pack(side="top", fill="x", ipady=self.col_paddl)
         self.county_e = ttk.Entry(self.data_col[0][1])
         self.county_e.pack(side="top", fill="x", pady=self.col_padd)
@@ -228,6 +230,114 @@ class homing_window():
         self.animal_l = ttk.Label(self.animal_frame,
                                   text="Animals to process:", anchor="n")
         self.animal_l.pack(side="top", fill="x")
+
+    def _submit_entries(self):
+        if len(self.animal_dict.values()) == 0:
+            return
+        # =============
+        # Build the SQL Query for inserting the homing event.
+        # =============
+        query = """
+                INSERT INTO Homing_Data (
+                    Date,
+                    Description,
+                    Delivered_Or_Collected,
+                    Name,
+                    Address_1,
+                    Address_2,
+                    Town,
+                    County,
+                    Postcode,
+                    Phone_Number)
+                
+                VALUES(
+                    :date,
+                    :description,
+                    :delivered,
+                    :name,
+                    :addr1,
+                    :addr2,
+                    :town,
+                    :county,
+                    :postcode,
+                    :phonenum)
+                    """
+
+        # Build the dictionary to fill the query
+        sql_dict = {}
+
+        # date
+        date = self.calendar.get_date()
+        date = datetime.strptime(date, '%d/%m/%Y').strftime('%Y-%m-%d')
+        sql_dict['date'] = date
+
+        sql_dict['description'] = self.text_box.get('1.0', 'end').rstrip()
+        sql_dict['delivered'] = self.home_type.get()
+        sql_dict['name'] = self.name_e.get().rstrip()
+        sql_dict['addr1'] = self.address1_e.get().rstrip()
+        sql_dict['addr2'] = self.address2_e.get().rstrip()
+        sql_dict['town'] = self.town_e.get().rstrip()
+        sql_dict['county'] = self.county_e.get().rstrip()
+        sql_dict['postcode'] = self.postcode_e.get().rstrip()
+        sql_dict['phonenum'] = self.phone_num_e.get().rstrip()
+
+        # enter the entry into Sqlite
+        adv_db_query(self.conn, query, sql_dict, returnlist=False)
+
+        # =============
+        # Bind the homing event to the animals involved.
+        # =============
+        # Get the ID of the latest homing event. we just posted.
+        query = """
+                SELECT ID FROM Homing_Data ORDER BY ID DESC LIMIT 1
+                """
+        homing_id = basic_db_query(self.conn, query)[1][0][0]
+
+        # add each animal to the pairing table.
+        for v in self.animal_dict.values():
+            query = """INSERT INTO Homing_Animal_Pairings (
+                       Animal_ID,
+                       Homing_Data_ID)
+                       VALUES(
+                       :Animal_ID,
+                       :Homing_ID)"""
+            sql_dict = {}
+            sql_dict['Animal_ID'] = v
+            sql_dict['Homing_ID'] = int(homing_id)
+
+            # enter the entry into Sqlite
+            adv_db_query(self.conn, query, sql_dict, returnlist=False)
+
+        # =============
+        # Ask if user wants to update individual animal pages
+        # =============
+        if self.home_type.get() == "home":
+            home_text = "left"
+        elif self.home_type.get() == "collect":
+            home_text = "entered"
+        msgboxtext = (
+            f"Do you want to update the individual animal pages "
+            f"to show that the animal has now {home_text} the rescue?"
+            )
+        msgBox = messagebox.askquestion('Update Animal Pages', msgboxtext)
+        if msgBox == 'yes':
+            # update animal records to reflect if animal is now in rescue
+            for v in self.animal_dict.values():
+                if self.home_type.get() == "home":
+                    home_val = 0
+                elif self.home_type.get() == "collect":
+                    home_val = 1
+
+                query = """UPDATE Animal SET In_Rescue = :in_rescue WHERE ID = :ID"""
+                sql_dict = {}
+                sql_dict['ID'] = v
+                sql_dict['in_rescue'] = home_val
+
+                adv_db_query(self.conn, query, sql_dict, returnlist=False)
+
+        # close window when everything complete
+        self.main_win.refresh_main_tree()
+        self.close_window()
 
     def _add_animal(self):
         tree = self.animal_tree.tree
