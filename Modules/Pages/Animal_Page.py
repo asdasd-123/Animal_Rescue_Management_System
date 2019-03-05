@@ -239,10 +239,10 @@ class animal_window():
             sql_dict = {'ID': self.animal_id}
             med_results = adv_db_query(self.conn, sql_query, sql_dict)
             med_tree = TreeBuild(self.med_hist_frame,
-                                search=True,
-                                data=med_results[1],
-                                widths=[0, 100, 50, 500],
-                                headings=med_results[0])
+                                 search=True,
+                                 data=med_results[1],
+                                 widths=[0, 100, 50, 500],
+                                 headings=med_results[0])
             # Needed to stop linter from moaning about being un-used
             # It will be used at a later date
             med_tree
@@ -253,16 +253,16 @@ class animal_window():
         # Medical history label
         if self.type != "new":
             home_label = ttk.Label(self.home_hist_frame,
-                                text="Homing History (Temp Data)")
+                                   text="Homing History (Temp Data)")
             home_label['font'] = self.main_win.font_sub_title
             home_label.pack(side="top", fill="x")
 
             # Temp table
             hom_tree = TreeBuild(self.home_hist_frame,
-                                search=True,
-                                data=med_results[1],
-                                widths=[0, 100, 50, 700],
-                                headings=med_results[0])
+                                 search=True,
+                                 data=med_results[1],
+                                 widths=[0, 100, 50, 700],
+                                 headings=med_results[0])
             # Needed to stop linter from moaning about being un-used
             # It will be used at a later date
             hom_tree

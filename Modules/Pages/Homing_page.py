@@ -7,7 +7,8 @@ import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
 from tkcalendar import Calendar
-from Modules.Other_modules.SQLite_functions import (basic_db_query, adv_db_query)
+from Modules.Other_modules.SQLite_functions import (basic_db_query,
+                                                    adv_db_query)
 from Modules.Other_modules.TreeBuild import TreeBuild
 from datetime import datetime
 
@@ -77,10 +78,12 @@ class homing_window():
         for col in range(num_of_cols):
             self.data_col.insert(col, [0, 1])
             self.data_col[col][0] = ttk.Frame(data_frame)
-            self.data_col[col][0].pack(side="left", fill="y", ipadx=5, anchor="n")
+            self.data_col[col][0].pack(side="left", fill="y",
+                                       ipadx=5, anchor="n")
             self.data_col[col][1] = ttk.Frame(data_frame)
-            self.data_col[col][1].pack(side="left", fill="y", ipadx=5, anchor="n")
-        
+            self.data_col[col][1].pack(side="left", fill="y",
+                                       ipadx=5, anchor="n")
+
         # -- Notes column
         note_frame = ttk.Frame(data_frame)
         note_frame.pack(side="left", fill="both", expand=True, padx=2)
@@ -108,7 +111,9 @@ class homing_window():
         self.calendar.pack(side="top", anchor="n")
 
         # Add button
-        self.add_button = ttk.Button(self.add_frame, text="Add Animal", command=self._add_animal)
+        self.add_button = ttk.Button(self.add_frame,
+                                     text="Add Animal",
+                                     command=self._add_animal)
         self.add_button.pack(side="top", anchor="n", fill="x")
 
         # In-Rescue checkbox
@@ -135,7 +140,9 @@ class homing_window():
             lambda c: self._add_animal())
 
         # cancel / submit button
-        self.submit = ttk.Button(self.buttons_frame, text="Submit", command=self._submit_entries)
+        self.submit = ttk.Button(self.buttons_frame,
+                                 text="Submit",
+                                 command=self._submit_entries)
         self.submit.pack(side="left", fill="x")
         self.cancel = ttk.Button(self.buttons_frame, text="Cancel",
                                  command=self.close_window)
@@ -159,10 +166,18 @@ class homing_window():
         spacer = ttk.Label(self.data_col[0][0], text="")
         spacer.pack(side="top", fill="x", pady=self.col_paddl)
         self.home_type = tk.StringVar()
-        self.radio_home = ttk.Radiobutton(self.data_col[0][1], value="home", text="Home to new owner", variable=self.home_type)
+        self.radio_home = ttk.Radiobutton(
+            self.data_col[0][1],
+            value="home",
+            text="Home to new owner",
+            variable=self.home_type)
         self.radio_home.pack(side="top", fill="x", pady=self.col_padd)
         self.radio_home.invoke()
-        self.radio_collect = ttk.Radiobutton(self.data_col[0][1], value="collect", text="Taking into the rescue", variable=self.home_type)
+        self.radio_collect = ttk.Radiobutton(
+            self.data_col[0][1],
+            value="collect",
+            text="Taking into the rescue",
+            variable=self.home_type)
         self.radio_collect.pack(side="top", fill="x", pady=self.col_padd)
 
         # Name
@@ -170,7 +185,7 @@ class homing_window():
         name_l.pack(side="top", fill="x", ipady=self.col_paddl)
         self.name_e = ttk.Entry(self.data_col[0][1])
         self.name_e.pack(side="top", fill="x", pady=self.col_padd)
-        
+
         # Address 1
         address1_l = ttk.Label(self.data_col[0][0], text="Address line 1")
         address1_l.pack(side="top", fill="x", ipady=self.col_paddl)
@@ -249,7 +264,7 @@ class homing_window():
                     County,
                     Postcode,
                     Phone_Number)
-                
+
                 VALUES(
                     :date,
                     :description,
@@ -328,7 +343,11 @@ class homing_window():
                 elif self.home_type.get() == "collect":
                     home_val = 1
 
-                query = """UPDATE Animal SET In_Rescue = :in_rescue WHERE ID = :ID"""
+                query = """
+                        UPDATE Animal
+                        SET In_Rescue = :in_rescue
+                        WHERE ID = :ID
+                        """
                 sql_dict = {}
                 sql_dict['ID'] = v
                 sql_dict['in_rescue'] = home_val
@@ -360,7 +379,7 @@ class homing_window():
             return
         else:
             self.animal_dict[button_id] = animal_id
-        
+
         # ===========
         # Build the actual visible row now.
         # ===========
@@ -392,7 +411,7 @@ class homing_window():
     def _remove_animal(self, rem_id):
         ids = str(rem_id)
         getattr(self, "rowmasterf" + ids).destroy()
-        del self.animal_dict[rem_id]    
+        del self.animal_dict[rem_id]
 
     def _get_next_row_id(self):
         for i in range(16):     # Max 16 entries
