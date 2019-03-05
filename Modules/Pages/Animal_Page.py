@@ -219,51 +219,53 @@ class animal_window():
         # Medical history widgets
         # ===============
         # Medical history label
-        sql_query = f"""
-                    SELECT SUM(Cost)
-                    FROM Medical
-                    where Animal_ID = {self.animal_id}
-                    """
-        med_spend = basic_db_query(self.conn, sql_query)[1][0][0]
-        med_spend = round(med_spend, 2)
-        med_text = f"Medical History   -   Total Spend = £{med_spend}"
-        med_label = ttk.Label(self.med_hist_frame, text=med_text)
-        med_label['font'] = self.main_win.font_sub_title
-        med_label.pack(side="top", fill="x")
+        if self.type != "new":
+            sql_query = f"""
+                        SELECT SUM(Cost)
+                        FROM Medical
+                        where Animal_ID = {self.animal_id}
+                        """
+            med_spend = basic_db_query(self.conn, sql_query)[1][0][0]
+            med_spend = round(med_spend, 2)
+            med_text = f"Medical History   -   Total Spend = £{med_spend}"
+            med_label = ttk.Label(self.med_hist_frame, text=med_text)
+            med_label['font'] = self.main_win.font_sub_title
+            med_label.pack(side="top", fill="x")
 
-        # Get medical history data from view
-        sql_query = """SELECT *
-                    FROM Animal_Page_Med_History
-                    WHERE Animal_ID = :ID"""
-        sql_dict = {'ID': self.animal_id}
-        med_results = adv_db_query(self.conn, sql_query, sql_dict)
-        med_tree = TreeBuild(self.med_hist_frame,
-                             search=True,
-                             data=med_results[1],
-                             widths=[0, 100, 50, 500],
-                             headings=med_results[0])
-        # Needed to stop linter from moaning about being un-used
-        # It will be used at a later date
-        med_tree
+            # Get medical history data from view
+            sql_query = """SELECT *
+                        FROM Animal_Page_Med_History
+                        WHERE Animal_ID = :ID"""
+            sql_dict = {'ID': self.animal_id}
+            med_results = adv_db_query(self.conn, sql_query, sql_dict)
+            med_tree = TreeBuild(self.med_hist_frame,
+                                search=True,
+                                data=med_results[1],
+                                widths=[0, 100, 50, 500],
+                                headings=med_results[0])
+            # Needed to stop linter from moaning about being un-used
+            # It will be used at a later date
+            med_tree
 
         # ===============
         # Homing history widgets
         # ===============
         # Medical history label
-        home_label = ttk.Label(self.home_hist_frame,
-                               text="Homing History (Temp Data)")
-        home_label['font'] = self.main_win.font_sub_title
-        home_label.pack(side="top", fill="x")
+        if self.type != "new":
+            home_label = ttk.Label(self.home_hist_frame,
+                                text="Homing History (Temp Data)")
+            home_label['font'] = self.main_win.font_sub_title
+            home_label.pack(side="top", fill="x")
 
-        # Temp table
-        hom_tree = TreeBuild(self.home_hist_frame,
-                             search=True,
-                             data=med_results[1],
-                             widths=[0, 100, 50, 700],
-                             headings=med_results[0])
-        # Needed to stop linter from moaning about being un-used
-        # It will be used at a later date
-        hom_tree
+            # Temp table
+            hom_tree = TreeBuild(self.home_hist_frame,
+                                search=True,
+                                data=med_results[1],
+                                widths=[0, 100, 50, 700],
+                                headings=med_results[0])
+            # Needed to stop linter from moaning about being un-used
+            # It will be used at a later date
+            hom_tree
 
         # ===============
         # bottom-right save/submit widgets
