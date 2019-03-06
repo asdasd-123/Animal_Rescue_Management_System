@@ -11,13 +11,13 @@ import tkinter.ttk as ttk
 import tkinter.font as tkfont
 import tkinter as tk
 from tkcalendar import Calendar
-from Modules.Other_modules.SQLite_functions import (basic_db_query,
-                                                    adv_db_query)
-from Modules.Other_modules.TreeBuild import TreeBuild
+from modules.othermodules.sqlitefunctions import (BasicDbQuery,
+                                                  AdvDbQuery)
+from modules.othermodules.treebuild import TreeBuild
 from datetime import datetime
 
 
-class animal_window():
+class AnimalWindow():
     def __init__(self, master, conn, main_win,
                  window_type="new", animal_id=""):
         self.conn = conn
@@ -225,7 +225,7 @@ class animal_window():
                         FROM Medical
                         where Animal_ID = {self.animal_id}
                         """
-            med_spend = basic_db_query(self.conn, sql_query)[1][0][0]
+            med_spend = BasicDbQuery(self.conn, sql_query)[1][0][0]
             med_spend = round(med_spend, 2)
             med_text = f"Medical History   -   Total Spend = £{med_spend}"
             med_label = ttk.Label(self.med_hist_frame, text=med_text)
@@ -237,7 +237,7 @@ class animal_window():
                         FROM Animal_Page_Med_History
                         WHERE Animal_ID = :ID"""
             sql_dict = {'ID': self.animal_id}
-            med_results = adv_db_query(self.conn, sql_query, sql_dict)
+            med_results = AdvDbQuery(self.conn, sql_query, sql_dict)
             med_tree = TreeBuild(self.med_hist_frame,
                                  search=True,
                                  data=med_results[1],
@@ -324,10 +324,10 @@ class animal_window():
                        In_Rescue = :InRescue
                        WHERE ID = :ID"""
 
-            adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
+            AdvDbQuery(self.conn, sql_query, update_dict, returnlist=False)
         elif sql_type == "save":
             next_id_qry = """SELECT ID FROM Animal ORDER BY ID DESC LIMIT 1"""
-            next_id_returns = basic_db_query(self.conn, next_id_qry)
+            next_id_returns = BasicDbQuery(self.conn, next_id_qry)
             next_id = int(next_id_returns[1][0][0]) + 1
             update_dict['ID'] = next_id
             sql_query = """INSERT INTO Animal (
@@ -351,7 +351,7 @@ class animal_window():
                         :Notes,
                         :InRescue
                         )"""
-            adv_db_query(self.conn, sql_query, update_dict, returnlist=False)
+            AdvDbQuery(self.conn, sql_query, update_dict, returnlist=False)
 
         self.close_window()
         self.main_win.refresh_main_tree()
@@ -369,7 +369,7 @@ class animal_window():
     def _populate_data(self, conn, id):
         populate_query = "SELECT * FROM Populate_Animal_Data WHERE ID = :ID"
         populate_dict = {'ID': id}
-        results = adv_db_query(conn, populate_query, populate_dict)
+        results = AdvDbQuery(conn, populate_query, populate_dict)
 
         # Update widgets
         # ID

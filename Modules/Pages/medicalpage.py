@@ -10,16 +10,16 @@ when adding multiple animals.
 """
 import tkinter as tk
 import tkinter.ttk as ttk
-from Modules.Other_modules.SQLite_functions import (basic_db_query,
-                                                    adv_db_query)
-from Modules.Other_modules.TreeBuild import TreeBuild
-from Modules.Other_modules.DateEntry import DateEntry
+from modules.othermodules.sqlitefunctions import (BasicDbQuery,
+                                                  AdvDbQuery)
+from modules.othermodules.treebuild import TreeBuild
+from modules.othermodules.dateentry import DateEntry
 from datetime import datetime, timedelta
 from tkcalendar import Calendar
-from Modules.Other_modules.Pop_up import pop_up_window
+from modules.othermodules.popup import PopUpWindow
 
 
-class medical_entry_window():
+class MedicalEntryWindow():
     def __init__(self, master, conn, main_win):
         self.conn = conn
         self.master = master
@@ -92,7 +92,7 @@ class medical_entry_window():
         animal_query = "SELECT * FROM Animal_ID_View"
         if self.in_rescue_var.get() == 1:
             animal_query += "_Active"
-        md = basic_db_query(self.conn, animal_query)
+        md = BasicDbQuery(self.conn, animal_query)
         self.animal_tree = TreeBuild(self.animal_tree_frame,
                                      search=True,
                                      data=md[1],
@@ -555,7 +555,7 @@ class medical_entry_window():
             sqlstr = sqlstr[:len(sqlstr) - 2]   # remove final command&newline
 
             sqlstr += ')'
-            adv_db_query(self.conn, sqlstr, value_dict, returnlist=False)
+            AdvDbQuery(self.conn, sqlstr, value_dict, returnlist=False)
 
             # =============
             # Updating chip info if necesarry
@@ -570,7 +570,7 @@ class medical_entry_window():
                 chip_dict = {}
                 chip_dict['Chip_Num'] = chip_num
                 chip_dict['ID'] = animal_id
-                adv_db_query(self.conn, sqlstr, chip_dict, returnlist=False)
+                AdvDbQuery(self.conn, sqlstr, chip_dict, returnlist=False)
             self.main_win.refresh_main_tree()
         self.close_window()
 
@@ -581,7 +581,7 @@ class medical_entry_window():
         md_query = "SELECT * FROM Animal_ID_View"
         if self.in_rescue_var.get() == 1:
             md_query += "_Active"
-        md = basic_db_query(self.conn, md_query)
+        md = BasicDbQuery(self.conn, md_query)
         self.animal_tree.refresh_data(md[1])
 
     def _check_errors(self):
@@ -714,10 +714,10 @@ class medical_entry_window():
 
     def open_popup_window(self, heading, text):
         if self.popup == 'not created':
-            self.popup = pop_up_window(tk.Toplevel(self.master),
-                                       heading=heading,
-                                       text=text,
-                                       main_win=self)
+            self.popup = PopUpWindow(tk.Toplevel(self.master),
+                                     heading=heading,
+                                     text=text,
+                                     main_win=self)
             self.popup.text_box.lift()
             self.popup.text_box.focus_force()
         else:

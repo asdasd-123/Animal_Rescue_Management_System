@@ -11,14 +11,14 @@ import tkinter.font as tkfont
 import tkinter.ttk as ttk
 import configparser
 from PIL import Image, ImageTk
-from Modules.Other_modules.SQLite_functions import basic_db_query
-from Modules.Other_modules.TreeBuild import TreeBuild
-from Modules.Pages.Medical_page import medical_entry_window
-from Modules.Pages.Animal_page import animal_window
-from Modules.Pages.Homing_page import homing_window
+from modules.othermodules.sqlitefunctions import BasicDbQuery
+from modules.othermodules.treebuild import TreeBuild
+from modules.pages.medicalpage import MedicalEntryWindow
+from modules.pages.animalpage import AnimalWindow
+from modules.pages.homingpage import HomingWindow
 
 
-class build_main_window():
+class BuildMainWindow():
     """Builds the main window"""
     def __init__(self, master, conn):
         self.master = master
@@ -206,7 +206,7 @@ class build_main_window():
         md_query = "SELECT * FROM Main_Page_View"
         if self.in_rescue_var.get() == 1:
             md_query += "_Active"
-        md = basic_db_query(self.conn, md_query)
+        md = BasicDbQuery(self.conn, md_query)
         self.main_tree = TreeBuild(self.tree_search_frame,
                                    search=True,
                                    data=md[1],
@@ -235,7 +235,7 @@ class build_main_window():
         # Medical History Tree
         # Get data
         sql_query = "SELECT * FROM Main_Page_Med_History"
-        med_results = basic_db_query(self.conn, sql_query)
+        med_results = BasicDbQuery(self.conn, sql_query)
         med_tree = TreeBuild(self.med_tree_frame,
                              search=True,
                              widths=[40, 120, 80, 50, 2000],
@@ -249,24 +249,24 @@ class build_main_window():
         md_query = "SELECT * FROM Main_Page_View"
         if self.in_rescue_var.get() == 1:
             md_query += "_Active"
-        md = basic_db_query(self.conn, md_query)
+        md = BasicDbQuery(self.conn, md_query)
         self.main_tree.refresh_data(md[1])
 
     def add_new_animal_window(self):
-        animal_window(tk.Toplevel(self.master), self.conn, self,
-                      window_type="new")
+        AnimalWindow(tk.Toplevel(self.master), self.conn, self,
+                     window_type="new")
 
     def open_medical_entry_window(self):
-        self.med_win = medical_entry_window(tk.Toplevel(self.master),
-                                            self.conn, self)
+        self.med_win = MedicalEntryWindow(tk.Toplevel(self.master),
+                                          self.conn, self)
 
     def open_homing_window(self):
-        self.homing_win = homing_window(tk.Toplevel(self.master),
-                                        self.conn, self)
+        self.homing_win = HomingWindow(tk.Toplevel(self.master),
+                                       self.conn, self)
 
     def open_animal_window(self, row_selected, event=None):
         region = self.main_tree.tree.identify("region", event.x, event.y)
         if region != "heading":
             animal_id = row_selected['values'][0]
-            animal_window(tk.Toplevel(self.master), self.conn, self,
-                          window_type="edit", animal_id=animal_id)
+            AnimalWindow(tk.Toplevel(self.master), self.conn, self,
+                         window_type="edit", animal_id=animal_id)

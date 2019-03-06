@@ -5,7 +5,7 @@ commonly needed SQLite functions I use
 """
 
 
-def basic_db_query(conn, query):
+def BasicDbQuery(conn, query):
     """Runs SQL query on connection and returns results as list.
     list[0] = list of headings
     list[1] = list(column) of lists(rows) of data"""
@@ -18,7 +18,7 @@ def basic_db_query(conn, query):
         return query_info
 
 
-def adv_db_query(conn, query, dictionary, returnlist=True):
+def AdvDbQuery(conn, query, dictionary, returnlist=True):
     """Runs SQL query on connection and returns results as list.
     list[0] = list of headings
     list[1] = list(column) of lists(rows) of data"""

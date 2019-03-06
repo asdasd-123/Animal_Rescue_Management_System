@@ -7,13 +7,13 @@ import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
 from tkcalendar import Calendar
-from Modules.Other_modules.SQLite_functions import (basic_db_query,
-                                                    adv_db_query)
-from Modules.Other_modules.TreeBuild import TreeBuild
+from modules.othermodules.sqlitefunctions import (BasicDbQuery,
+                                                  AdvDbQuery)
+from modules.othermodules.treebuild import TreeBuild
 from datetime import datetime
 
 
-class homing_window():
+class HomingWindow():
     def __init__(self, master, conn, main_win):
         # Init variable setup
         self.master = master
@@ -129,7 +129,7 @@ class homing_window():
         animal_query = "SELECT * FROM Animal_ID_View"
         if self.in_rescue_var.get() == 1:
             animal_query += "_Active"
-        md = basic_db_query(self.conn, animal_query)
+        md = BasicDbQuery(self.conn, animal_query)
         self.animal_tree = TreeBuild(self.animal_tree_frame,
                                      search=True,
                                      data=md[1],
@@ -297,7 +297,7 @@ class homing_window():
         sql_dict['phonenum'] = self.phone_num_e.get().rstrip()
 
         # enter the entry into Sqlite
-        adv_db_query(self.conn, query, sql_dict, returnlist=False)
+        AdvDbQuery(self.conn, query, sql_dict, returnlist=False)
 
         # =============
         # Bind the homing event to the animals involved.
@@ -306,7 +306,7 @@ class homing_window():
         query = """
                 SELECT ID FROM Homing_Data ORDER BY ID DESC LIMIT 1
                 """
-        homing_id = basic_db_query(self.conn, query)[1][0][0]
+        homing_id = BasicDbQuery(self.conn, query)[1][0][0]
 
         # add each animal to the pairing table.
         for v in self.animal_dict.values():
@@ -321,7 +321,7 @@ class homing_window():
             sql_dict['Homing_ID'] = int(homing_id)
 
             # enter the entry into Sqlite
-            adv_db_query(self.conn, query, sql_dict, returnlist=False)
+            AdvDbQuery(self.conn, query, sql_dict, returnlist=False)
 
         # =============
         # Ask if user wants to update individual animal pages
@@ -352,7 +352,7 @@ class homing_window():
                 sql_dict['ID'] = v
                 sql_dict['in_rescue'] = home_val
 
-                adv_db_query(self.conn, query, sql_dict, returnlist=False)
+                AdvDbQuery(self.conn, query, sql_dict, returnlist=False)
 
         # close window when everything complete
         self.main_win.refresh_main_tree()
@@ -423,7 +423,7 @@ class homing_window():
         md_query = "SELECT * FROM Animal_ID_View"
         if self.in_rescue_var.get() == 1:
             md_query += "_Active"
-        md = basic_db_query(self.conn, md_query)
+        md = BasicDbQuery(self.conn, md_query)
         self.animal_tree.refresh_data(md[1])
 
     def close_window(self):

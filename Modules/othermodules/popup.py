@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 
-class pop_up_window():
+class PopUpWindow():
     def __init__(self, master, main_win, size="480x300",
                  heading="", text=""):
         self.master = master
