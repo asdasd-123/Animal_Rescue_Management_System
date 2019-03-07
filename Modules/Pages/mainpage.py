@@ -16,6 +16,7 @@ from modules.othermodules.treebuild import TreeBuild
 from modules.pages.medicalpage import MedicalEntryWindow
 from modules.pages.animalpage import AnimalWindow
 from modules.pages.homingpage import HomingWindow
+from modules.othermodules.tk_window import CenterWindow
 
 
 class BuildMainWindow():
@@ -31,6 +32,8 @@ class BuildMainWindow():
         self._setup_tab_1_widgets()
         self._setup_tab_2_frames()
         self._setup_tab_2_widgets()
+        self._setup_tab_3_frames()
+        self._setup_tab_3_widgets()
 
     def _setup_window(self):
         # Get and read config
@@ -43,8 +46,7 @@ class BuildMainWindow():
         wm_title = self.title
         self.master.wm_title(wm_title)
 
-        # Set window size on launch
-        self.master.geometry("1024x768")
+        CenterWindow(self.master)
 
     def _setup_fonts(self):
         # Title Font settings
@@ -121,12 +123,12 @@ class BuildMainWindow():
         # Setup the tab frames
         self.tab1 = ttk.Frame(note)
         self.tab2 = ttk.Frame(note)
-        self.tab3 = ttk.Frame(note, style="tab3.TFrame")
+        self.tab3 = ttk.Frame(note)
 
         # Asign the above frames to tabs
         note.add(self.tab1, text="  Dashboard  ")
         note.add(self.tab2, text="  Medical History  ")
-        note.add(self.tab3, text="Tab three")
+        note.add(self.tab3, text="  Homing History  ")
 
         # Packing the tabs widget to fill screen.
         note.pack(fill="both", expand=True)
@@ -244,6 +246,34 @@ class BuildMainWindow():
         # Needed to stop linter from moaning about being un-used
         # It will be used at a later date
         med_tree
+
+    def _setup_tab_3_frames(self):
+        # Header Frame
+        self.homing_header = ttk.Frame(self.tab3)
+        self.homing_header.pack(side="top", fill="x")
+
+        # Medical history frame
+        self.homing_tree_frame = ttk.Frame(self.tab3)
+        self.homing_tree_frame.pack(side="top", fill="both", expand=True)
+
+    def _setup_tab_3_widgets(self):
+        # Title
+        homing_title = ttk.Label(self.homing_header, text="Homing History")
+        homing_title['font'] = self.font_title
+        homing_title.pack(side="top", anchor="n")
+
+        # Medical History Tree
+        # Get data
+        sql_query = "SELECT * FROM Main_Page_Homing_History"
+        homing_results = BasicDbQuery(self.conn, sql_query)
+        homing_tree = TreeBuild(self.homing_tree_frame,
+                                search=True,
+                                widths=[70, 40, 100, 95, 120, 300, 100, 2000],
+                                data=homing_results[1],
+                                headings=homing_results[0])
+        # Needed to stop linter from moaning about being un-used
+        # It will be used at a later date
+        homing_tree
 
     def refresh_main_tree(self):
         md_query = "SELECT * FROM Main_Page_View"

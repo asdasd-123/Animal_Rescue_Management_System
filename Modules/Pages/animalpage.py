@@ -15,6 +15,7 @@ from modules.othermodules.sqlitefunctions import (BasicDbQuery,
                                                   AdvDbQuery)
 from modules.othermodules.treebuild import TreeBuild
 from datetime import datetime
+from modules.othermodules.tk_window import CenterWindow
 
 
 class AnimalWindow():
@@ -23,7 +24,7 @@ class AnimalWindow():
         self.conn = conn
         self.master = master
         self.master.withdraw()      # Hide window
-        self.master.geometry("1680x900")
+        CenterWindow(self.master)
         self.animal_id = animal_id
         self.main_win = main_win
         self.type = window_type
@@ -40,8 +41,7 @@ class AnimalWindow():
 
     def _build_frames(self):
         # Right Frame
-        self.right_frame = ttk.Frame(self.master, width="300",
-                                     style="green.TFrame")
+        self.right_frame = ttk.Frame(self.master, width="300")
         self.right_frame.pack(side="right", fill="both")
 
         # - Image frame
@@ -117,11 +117,13 @@ class AnimalWindow():
 
         # -- Medical history frame
         self.med_hist_frame = ttk.Frame(self.central_frame)
-        self.med_hist_frame.pack(side="left", fill="both")
+        self.med_hist_frame.pack_propagate(0)
+        self.med_hist_frame.pack(side="top", fill="both", expand=True)
 
         # -- homing history frame
         self.home_hist_frame = ttk.Frame(self.central_frame)
-        self.home_hist_frame.pack(side="left", fill="both")
+        self.home_hist_frame.pack_propagate(0)
+        self.home_hist_frame.pack(side="top", fill="both", expand=True)
 
     def _build_widgets(self):
         # ===============
@@ -258,11 +260,15 @@ class AnimalWindow():
             home_label.pack(side="top", fill="x")
 
             # Temp table
+            sql_query = """SELECT *
+                        FROM Animal_Page_Homing_History
+                        WHERE ID = :ID"""
+            hom_results = AdvDbQuery(self.conn, sql_query, sql_dict)
             hom_tree = TreeBuild(self.home_hist_frame,
                                  search=True,
-                                 data=med_results[1],
-                                 widths=[0, 100, 50, 700],
-                                 headings=med_results[0])
+                                 data=hom_results[1],
+                                 widths=[70, 40, 95, 120, 300, 100, 2000],
+                                 headings=hom_results[0])
             # Needed to stop linter from moaning about being un-used
             # It will be used at a later date
             hom_tree

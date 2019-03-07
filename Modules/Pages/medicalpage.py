@@ -17,6 +17,7 @@ from modules.othermodules.dateentry import DateEntry
 from datetime import datetime, timedelta
 from tkcalendar import Calendar
 from modules.othermodules.popup import PopUpWindow
+from modules.othermodules.tk_window import CenterWindow
 
 
 class MedicalEntryWindow():
@@ -26,7 +27,7 @@ class MedicalEntryWindow():
         self.med_dict = {}          # dictionary of button ID's and animal ids
         self.master.withdraw()      # Hide window
         self.master.wm_title("Medical Entries")
-        self.master.geometry("1024x700")
+        CenterWindow(self.master)
         self.main_win = main_win    # Used for comunicating with parent window.
         self._build_frames()
         self._build_widgets()

@@ -11,6 +11,7 @@ from modules.othermodules.sqlitefunctions import (BasicDbQuery,
                                                   AdvDbQuery)
 from modules.othermodules.treebuild import TreeBuild
 from datetime import datetime
+from modules.othermodules.tk_window import CenterWindow
 
 
 class HomingWindow():
@@ -24,7 +25,7 @@ class HomingWindow():
 
         # Window setup
         self.master.wm_title("Homing")
-        self.master.geometry("1024x700")
+        CenterWindow(self.master)
 
         # Build the window
         self._build_frames()
