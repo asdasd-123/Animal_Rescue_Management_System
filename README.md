@@ -9,10 +9,12 @@ Front-End software for an animal rescue to manage records.
 - ~~Add "in Rescue" checkbox to animal window~~
 - ~~Split current labelframe in main window into two. one for buttons, one for treeview filters~~
 - ~~Add checkbox filter in main window to only display animals in rescue or not~~
-- Enforce that only one medical window opens at a time
 - ~~Add ability to add medical events~~
 - ~~Add section on medical history to individual animal window~~
-- Add medical history tab to main window with full medical history
-- Add ability to add homing/pickup events
-- Add homing/pickup history to individual animal window
-- Add homing/pickup history tab to main window with full homing history displayed
+- ~~Add medical history tab to main window with full medical history~~
+- ~~Add ability to add homing/pickup events~~
+- ~~Add homing/pickup history to individual animal window~~
+- ~~Add homing/pickup history tab to main window with full homing history displayed~~
+- Add double click pop-up for homing and medical events in all windows.
+- Add framework to support the saving of pictures for animals
+- Add framework to support thumbnails for animals 
