@@ -233,7 +233,7 @@ class MedicalEntryWindow():
             lambda c: self._vac_type_selection(button_id))
 
         # vac due date + label
-        text = "| Next Vac Due : "
+        text = "| Next Vac Due (YYYY-MM-DD) : "
         setattr(self, "medduedatel" + ids, ttk.Label(medf2, text=text))
         setattr(self, "medduedate" + ids, DateEntry(medf2))
 
