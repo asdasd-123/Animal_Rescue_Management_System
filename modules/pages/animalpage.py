@@ -303,7 +303,7 @@ class AnimalWindow():
         # Medical history label
         if self.type != "new":
             home_label = ttk.Label(self.home_hist_frame,
-                                   text="Homing History (Temp Data)")
+                                   text="Homing History")
             home_label['font'] = self.main_win.font_sub_title
             home_label.pack(side="top", fill="x")
 
