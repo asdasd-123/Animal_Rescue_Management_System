@@ -18,9 +18,11 @@ from datetime import datetime
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.filesandfolders import (get_full_path,
                                                   check_rel_file,
-                                                  check_rel_folder)
+                                                  check_rel_folder,
+                                                  file_extension,
+                                                  copy_files)
 from PIL import Image, ImageTk
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askopenfilenames
 import cv2
 from modules.othermodules.globals import Globals
 
@@ -58,7 +60,7 @@ class AnimalWindow():
 
         # - Set image frame
         self.image_button_frame = ttk.Frame(self.right_frame)
-        self.image_button_frame.pack(side="top", fill="x")
+        self.image_button_frame.pack(side="top", anchor="c")
 
         # - Notes header frame
         self.note_header_frame = ttk.Frame(self.right_frame)
@@ -153,7 +155,6 @@ class AnimalWindow():
         # ===============
         # - image
         rel_path = 'images\\thumbnails\\' + str(self.animal_id) + '.png'
-        print(rel_path)
         if check_rel_file(rel_path):
             thumbnail_path = rel_path
         else:
@@ -167,10 +168,17 @@ class AnimalWindow():
         # - setimage button
         set_img_button = ttk.Button(
             self.image_button_frame,
-            text="Set Image",
+            text="Set Profile Photo",
             command=lambda c=self.animal_id: self._set_profile_image(c))
         if self.animal_id != "":
-            set_img_button.pack(side="top", anchor="c")
+            set_img_button.pack(side="left", anchor="c", padx=3)
+
+        # - Add images button
+        store_img_button = ttk.Button(
+            self.image_button_frame,
+            text="Add Photos",
+            command=lambda c=str(self.animal_id): self._add_images(c))
+        store_img_button.pack(side="left", anchor="c", padx=3)
 
         # - Notes items.
         # - Notes label
@@ -495,3 +503,36 @@ class AnimalWindow():
         # In rescue
         in_rescue_value = results[1][0][results[0].index('In_Rescue')]
         self.in_rescue_var.set(in_rescue_value)
+
+    def _add_images(self, animal_id):
+        animal_id = str(animal_id)
+        # Check folder exists and create if needed
+        rel_folder = 'images\\' + animal_id + '\\'
+        check_rel_folder(rel_folder, create=True)
+
+        # Ask user to pick photos:
+        Globals.root.withdraw()
+        img_list = askopenfilenames(filetypes=[(
+            "Images", "*.jpg *.jpeg *.png")])
+
+        # Bring animal window to front again
+        Globals.root.deiconify()
+        self.thumbnail_img.lift()
+        self.thumbnail_img.focus_force()
+
+        for img in img_list:
+            # get next available file name
+            fileexist = True
+            img_num = 0
+            img_extension = file_extension(img)
+            while fileexist:
+                img_name = 'IMG_' + animal_id + '_' + str(img_num)
+                rel_file = rel_folder + img_name + img_extension
+                if check_rel_file(rel_file):
+                    img_num += 1
+                else:
+                    fileexist = False
+
+            # Copy over file
+            new_path = get_full_path(rel_file)
+            copy_files(img, new_path)
