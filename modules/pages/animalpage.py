@@ -152,8 +152,7 @@ class AnimalWindow():
         # Right frame, notes widgets
         # ===============
         # - image
-        rel_path = 'images\\'
-        rel_path += str(self.animal_id) + '\\thumbnail\\thumbnail.png'
+        rel_path = 'images\\thumbnails\\' + str(self.animal_id) + '.png'
         print(rel_path)
         if check_rel_file(rel_path):
             thumbnail_path = rel_path
