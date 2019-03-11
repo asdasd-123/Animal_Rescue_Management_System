@@ -16,6 +16,12 @@ from modules.othermodules.sqlitefunctions import (BasicDbQuery,
 from modules.othermodules.treebuild import TreeBuild
 from datetime import datetime
 from modules.othermodules.tk_window import CenterWindow
+from modules.othermodules.filesandfolders import (get_full_path,
+                                                  check_rel_file)
+from PIL import Image, ImageTk
+from tkinter.filedialog import askopenfilename
+import cv2
+from modules.othermodules.globals import Globals
 
 
 class AnimalWindow():
@@ -48,6 +54,10 @@ class AnimalWindow():
         self.image_frame = ttk.Frame(self.right_frame, width="300",
                                      height="300", style="grey.TLabel")
         self.image_frame.pack(side="top", fill="x")
+
+        # - Set image frame
+        self.image_button_frame = ttk.Frame(self.right_frame)
+        self.image_button_frame.pack(side="top", fill="x")
 
         # - Notes header frame
         self.note_header_frame = ttk.Frame(self.right_frame)
@@ -140,6 +150,28 @@ class AnimalWindow():
         # ===============
         # Right frame, notes widgets
         # ===============
+        # - image
+        rel_path = 'images\\'
+        rel_path += str(self.animal_id) + '\\thumbnail\\thumbnail.png'
+        print(rel_path)
+        if check_rel_file(rel_path):
+            thumbnail_path = rel_path
+        else:
+            thumbnail_path = get_full_path("config\\default_thumbnail.png")
+        thumbnail_im = Image.open(thumbnail_path)
+        thumbnail_ph = ImageTk.PhotoImage(thumbnail_im)
+        self.thumbnail_img = ttk.Label(self.image_frame, image=thumbnail_ph)
+        self.thumbnail_img.image = thumbnail_ph
+        self.thumbnail_img.pack(side="top")
+
+        # - setimage button
+        set_img_button = ttk.Button(
+            self.image_button_frame,
+            text="Set Image",
+            command=lambda c=self.animal_id: self._set_profile_image(c))
+        if self.animal_id != "":
+            set_img_button.pack(side="top", anchor="c")
+
         # - Notes items.
         # - Notes label
         self.notes_l = ttk.Label(self.note_header_frame,
@@ -293,6 +325,45 @@ class AnimalWindow():
             self.save.pack(side="right", anchor="e", padx=20, pady=10)
         else:
             self.submit.pack(side="right", anchor="e", padx=20, pady=10)
+
+    def _set_profile_image(self, animal_id):
+        Globals.root.withdraw()
+        # return
+        new_image_loc = askopenfilename(filetypes=[(
+            "Images", "*.jpg *.jpeg *.png")])
+
+        # Bring animal window to front again
+        Globals.root.deiconify()
+        self.thumbnail_img.lift()
+        self.thumbnail_img.focus_force()
+
+        img = cv2.imread(new_image_loc)
+
+        # Get new width and height
+        w = img.shape[1]
+        h = img.shape[0]
+        max_dimension = 300
+        if w <= h:
+            nw = int(round(w / h * max_dimension, 0))
+            nh = max_dimension
+        else:
+            nh = int(round(h / w * max_dimension, 0))
+            nw = max_dimension
+        dimension = (nw, nh)
+
+        # Set new image
+        new_img = cv2.resize(img, dimension, interpolation=cv2.INTER_AREA)
+
+        # get path of new image
+        rel_path = 'images\\'
+        rel_path += str(self.animal_id) + '\\thumbnail\\thumbnail.png'
+        cv2.imwrite(rel_path, new_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
+
+        # Update image on page
+        thumbnail_im = Image.open(rel_path)
+        thumbnail_ph = ImageTk.PhotoImage(thumbnail_im)
+        self.thumbnail_img.configure(image=thumbnail_ph)
+        self.thumbnail_img.image = thumbnail_ph
 
     def update_database(self, sql_type=""):
         if sql_type == "":
