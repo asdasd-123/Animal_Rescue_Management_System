@@ -15,12 +15,9 @@ def check_folder(folder_path, create=False):
 def check_rel_folder(relative_path, create=False):
     full_path = os.path.join(sys.path[0], relative_path)
     if not os.path.exists(full_path):
-        print(f"path not found : {full_path}")
         if create:
-            print("Creating path now")
             os.makedirs(full_path)
         return False
-    print(f"path found : {full_path}")
     return True
 
 

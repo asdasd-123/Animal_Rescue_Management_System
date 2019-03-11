@@ -17,7 +17,8 @@ from modules.othermodules.treebuild import TreeBuild
 from datetime import datetime
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.filesandfolders import (get_full_path,
-                                                  check_rel_file)
+                                                  check_rel_file,
+                                                  check_rel_folder)
 from PIL import Image, ImageTk
 from tkinter.filedialog import askopenfilename
 import cv2
@@ -357,6 +358,8 @@ class AnimalWindow():
         # get path of new image
         rel_path = 'images\\'
         rel_path += str(self.animal_id) + '\\thumbnail\\thumbnail.png'
+        rel_folder = 'images\\' + str(self.animal_id) + '\\thumbnail\\'
+        check_rel_folder(rel_folder, create=True)
         cv2.imwrite(rel_path, new_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
 
         # Update image on page
