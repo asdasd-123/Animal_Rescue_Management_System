@@ -20,7 +20,8 @@ from modules.othermodules.filesandfolders import (get_full_path,
                                                   check_rel_file,
                                                   check_rel_folder,
                                                   file_extension,
-                                                  copy_files)
+                                                  copy_files,
+                                                  open_folder)
 from PIL import Image, ImageTk
 from tkinter.filedialog import askopenfilename, askopenfilenames
 import cv2
@@ -179,6 +180,13 @@ class AnimalWindow():
             text="Add Photos",
             command=lambda c=str(self.animal_id): self._add_images(c))
         store_img_button.pack(side="left", anchor="c", padx=3)
+
+        # - Open images folder button
+        open_img_button = ttk.Button(
+            self.image_button_frame,
+            text="Open Photos Folder",
+            command=lambda c=str(self.animal_id): self._open_images_folder(c))
+        open_img_button.pack(side="left", anchor="c", padx=3)
 
         # - Notes items.
         # - Notes label
@@ -536,3 +544,10 @@ class AnimalWindow():
             # Copy over file
             new_path = get_full_path(rel_file)
             copy_files(img, new_path)
+
+    def _open_images_folder(self, animal_id):
+        animal_id = str(animal_id)
+        rel_path = "images\\" + animal_id + '\\'
+        full_path = get_full_path(rel_path)
+        check_rel_folder(rel_path, create=True)
+        open_folder(full_path)

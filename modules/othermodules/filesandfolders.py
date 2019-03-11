@@ -40,3 +40,7 @@ def file_extension(path):
 
 def copy_files(source_path, dest_path):
     copy2(source_path, dest_path)
+
+
+def open_folder(path):
+    os.startfile(path)
