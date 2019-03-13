@@ -17,6 +17,7 @@ from modules.pages.medicalpage import MedicalEntryWindow
 from modules.pages.animalpage import AnimalWindow
 from modules.pages.homingpage import HomingWindow
 from modules.othermodules.tk_window import CenterWindow
+from modules.othermodules.medicalpopup import medical_popup
 
 
 class BuildMainWindow():
@@ -219,7 +220,7 @@ class BuildMainWindow():
             lambda c: self.open_animal_window(
                 self.main_tree.tree.item(self.main_tree.tree.focus()), c))
 
-    def _setup_tab_2_frames(self):
+    def _setup_tab_2_frames(self):      # Medical history
         # Header Frame
         self.med_header = ttk.Frame(self.tab2)
         self.med_header.pack(side="top", fill="x")
@@ -228,7 +229,7 @@ class BuildMainWindow():
         self.med_tree_frame = ttk.Frame(self.tab2)
         self.med_tree_frame.pack(side="top", fill="both", expand=True)
 
-    def _setup_tab_2_widgets(self):
+    def _setup_tab_2_widgets(self):     # Medical history
         # Title
         med_title = ttk.Label(self.med_header, text="Medical History")
         med_title['font'] = self.font_title
@@ -240,14 +241,14 @@ class BuildMainWindow():
         med_results = BasicDbQuery(self.conn, sql_query)
         med_tree = TreeBuild(self.med_tree_frame,
                              search=True,
-                             widths=[40, 120, 80, 50, 2000],
+                             widths=[40, 60, 120, 80, 50, 2000],
                              data=med_results[1],
                              headings=med_results[0])
-        # Needed to stop linter from moaning about being un-used
-        # It will be used at a later date
-        med_tree
+        med_tree.tree.bind(
+            "<Double-1>",
+            lambda c: medical_popup(self, med_tree.tree, c))
 
-    def _setup_tab_3_frames(self):
+    def _setup_tab_3_frames(self):      # Homing History
         # Header Frame
         self.homing_header = ttk.Frame(self.tab3)
         self.homing_header.pack(side="top", fill="x")
@@ -256,7 +257,7 @@ class BuildMainWindow():
         self.homing_tree_frame = ttk.Frame(self.tab3)
         self.homing_tree_frame.pack(side="top", fill="both", expand=True)
 
-    def _setup_tab_3_widgets(self):
+    def _setup_tab_3_widgets(self):     # Homing History
         # Title
         homing_title = ttk.Label(self.homing_header, text="Homing History")
         homing_title['font'] = self.font_title

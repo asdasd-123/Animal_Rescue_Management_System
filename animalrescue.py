@@ -13,6 +13,7 @@ from modules.othermodules.globals import Globals
 
 # Connect to db
 conn = sqlite3.connect('records/Records.db')
+Globals.conn = conn
 
 root = tk.Tk()                    # Create root
 Globals.root = root

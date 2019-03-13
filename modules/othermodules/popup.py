@@ -1,3 +1,25 @@
+# =====================================
+#   _____            _    _
+#  |  __ \          | |  | |
+#  | |__) ___  _ __ | |  | |_ __  ___
+#  |  ___/ _ \| '_ \| |  | | '_ \/ __|
+#  | |  | (_) | |_) | |__| | |_) \__ \
+#  |_|   \___/| .__/ \____/| .__/|___/
+#             | |          | |
+#             |_|          |_|
+# =====================================
+# This library makes generating popups in tkinter a lot less tedius.
+#
+# The types of popup are as follows:
+#  -  PopUpWindow 
+#     Intended to be used to force only one copy of the window to stay open.
+#     As such, it requires a variable in the parent class.
+#
+#  -  BasicPopUpWindow
+#     No features. Just a textbox popup that can be called and requires no
+#     communicaton to the parent window.
+
+
 import tkinter as tk
 import tkinter.ttk as ttk
 
