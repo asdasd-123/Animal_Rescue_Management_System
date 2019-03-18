@@ -3,7 +3,8 @@ For when user double clicks on any medical treeview
 """
 from modules.othermodules.sqlitefunctions import AdvDbQuery
 from modules.othermodules.globals import Globals
-from modules.othermodules.popup import PopUpWindow
+from modules.othermodules.popup import BasicPopUpWindow
+import tkinter as tk
 
 
 def medical_popup(master, tree, event=None):
@@ -24,17 +25,14 @@ def medical_popup(master, tree, event=None):
     sql_dict = {'ID': med_id}
 
     results = AdvDbQuery(Globals.conn, sql_query, sql_dict)
-    print(results)
 
     results_string = ""
     for index, value in enumerate(results[0]):
         results_string += str(results[0][index]) + "  :  "
         results_string += str(results[1][0][index]) + "\n"
-    print(results_string)
 
     # Build the medical window:
     # ========
-    popup = PopUpWindow(tk.Toplevel(master.master),
-                        heading="Medical Entry",
-                        text=results_string,
-                        main_win = master)
+    BasicPopUpWindow(tk.Toplevel(master.master),
+                     heading="Medical Entry",
+                     text=results_string)

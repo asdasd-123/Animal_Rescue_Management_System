@@ -32,7 +32,7 @@ class MedicalEntryWindow():
         self._build_frames()
         self._build_widgets()
         self.master.deiconify()     # show window
-        self.popup = 'not created'  # Check used later to see if popup created.
+        self.popup = False  # Check used later to see if popup created.
 
     def _build_frames(self):
         # Right frame
@@ -714,7 +714,7 @@ class MedicalEntryWindow():
             return True
 
     def open_popup_window(self, heading, text):
-        if self.popup == 'not created':
+        if self.popup is False:
             self.popup = PopUpWindow(tk.Toplevel(self.master),
                                      heading=heading,
                                      text=text,
