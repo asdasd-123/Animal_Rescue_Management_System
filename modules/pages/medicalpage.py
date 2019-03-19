@@ -16,7 +16,7 @@ from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.dateentry import DateEntry
 from datetime import datetime, timedelta
 from tkcalendar import Calendar
-from modules.othermodules.popup import PopUpWindow
+from modules.othermodules.old_popup import PopUpWindow
 from modules.othermodules.tk_window import CenterWindow
 
 
