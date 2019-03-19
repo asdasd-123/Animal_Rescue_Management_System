@@ -16,7 +16,7 @@ from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.dateentry import DateEntry
 from datetime import datetime, timedelta
 from tkcalendar import Calendar
-from modules.othermodules.old_popup import PopUpWindow
+from modules.othermodules.popup import PopUp as PopUp
 from modules.othermodules.tk_window import CenterWindow
 
 
@@ -707,21 +707,10 @@ class MedicalEntryWindow():
                 error = True
                 err_text += row_error_header + row_error_text + '\n'
         if error:
-            self.open_popup_window(heading="Errors found in entries",
-                                   text=err_text)
+            PopUp(self.master,
+                  'MedicalEntries',
+                  heading="Errors found in entries",
+                  text=err_text)
             return False
         else:
             return True
-
-    def open_popup_window(self, heading, text):
-        if self.popup is False:
-            self.popup = PopUpWindow(tk.Toplevel(self.master),
-                                     heading=heading,
-                                     text=text,
-                                     main_win=self)
-            self.popup.text_box.lift()
-            self.popup.text_box.focus_force()
-        else:
-            self.popup.replace_text(text=text)
-            self.popup.text_box.lift()
-            self.popup.text_box.focus_force()
