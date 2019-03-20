@@ -35,4 +35,5 @@ def medical_popup(master, tree, event=None):
     PopUp(master.master,
           'MedicalPage',
           heading="Medical Entry",
+          size="750x200",
           text=results_string)
