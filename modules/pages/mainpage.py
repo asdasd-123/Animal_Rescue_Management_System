@@ -18,7 +18,10 @@ from modules.pages.animalpage import AnimalWindow
 from modules.pages.homingpage import HomingWindow
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.medicalpopup import medical_popup
-
+from modules.othermodules.filesandfolders import (
+    check_rel_folder, get_full_path, copy_files, check_rel_file,
+    file_extension)
+from tkinter.filedialog import askopenfilenames
 
 class BuildMainWindow():
     """Builds the main window"""
@@ -196,6 +199,13 @@ class BuildMainWindow():
             command=self.open_homing_window)
         homing_button.pack(side="left", anchor="nw", padx=6)
 
+        # Import images button
+        import_img_button = ttk.Button(
+            self.buttons_frame,
+            text="Import Images",
+            command=self._add_images)
+        import_img_button.pack(side="left", anchor="nw", padx=6)
+
         # In Rescue checkbox
         self.in_rescue_var = tk.IntVar()
         self.in_rescue = ttk.Checkbutton(self.filters_frame,
@@ -301,3 +311,35 @@ class BuildMainWindow():
             animal_id = row_selected['values'][0]
             AnimalWindow(tk.Toplevel(self.master), self.conn, self,
                          window_type="edit", animal_id=animal_id)
+
+    def _add_images(self):
+        # Check folder exists and create if needed
+        rel_folder = 'images\\untagged\\'
+        check_rel_folder(rel_folder, create=True)
+
+        # Ask user to pick photos:
+        img_list = askopenfilenames(filetypes=[(
+            "Images", "*.jpg *.jpeg *.png")])
+
+        for img in img_list:
+            # get next available file name
+            fileexist = True
+            img_num = 0
+            img_extension = file_extension(img)
+            while fileexist:
+                img_name = 'IMG_' + str(img_num)
+                rel_file = rel_folder + img_name + img_extension
+                if check_rel_file(rel_file):
+                    img_num += 1
+                else:
+                    fileexist = False
+
+            # Copy over file
+            new_path = get_full_path(rel_file)
+            copy_files(img, new_path)
+
+        msgbox = tk.messagebox.askquestion(
+            'Tag Photos?',
+            "Do you want to tag the photo's now?")
+        if msgbox == 'yes':
+            self.open_tag_photo_window(self)
