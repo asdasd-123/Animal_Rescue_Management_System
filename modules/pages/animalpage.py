@@ -291,7 +291,7 @@ class AnimalWindow():
             med_tree = TreeBuild(self.med_hist_frame,
                                  search=True,
                                  data=med_results[1],
-                                 widths=[0, 100, 50, 500],
+                                 widths=[0, 100, 50, 1300],
                                  headings=med_results[0])
             # Needed to stop linter from moaning about being un-used
             # It will be used at a later date
