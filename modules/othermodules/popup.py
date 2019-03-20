@@ -12,14 +12,15 @@
 # Each one is asigned a window_id.
 # If a popup with the specified window_id is already open, switch focus
 # and update the text/header to the new info.
-#
+
 # Example use:
 #   root = tk.Tk()
-#
+
 #   PopUp(root,                     Parent window
 #         'window1',                window ID
 #          text="text",             text in popup
 #          heading="header text",   heading in popup
+#          title="window title",    title of popup
 #          center=False,            center window or not
 #          size="200x200")          set size of window
 import tkinter as tk
@@ -42,7 +43,7 @@ class __PopUpController__():
 
 
 class PopUp(__PopUpController__):
-    def __init__(self, master, win_id, text="", heading="",
+    def __init__(self, master, win_id, text="", heading="", title="",
                  center=True, size="480x300"):
         """
         Create a popup supplying the following info:
@@ -52,6 +53,7 @@ class PopUp(__PopUpController__):
                     (if already exist, previous window will be updated)
         text*       - text in popup
         heading*    - heading in popup
+        title*      - title of popup
         center*     - center window or not (default True)
         size*       - size of window
         """
@@ -78,6 +80,8 @@ class PopUp(__PopUpController__):
             self._center_window(win_id)
         else:
             self.popup_dict[win_id][1].geometry(size)
+
+        self.popup_dict[win_id][1].wm_title(title)
 
     def _setup_new_window(self, win_id):
         """
