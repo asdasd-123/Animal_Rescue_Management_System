@@ -18,12 +18,9 @@ from datetime import datetime
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.filesandfolders import (get_full_path,
                                                   check_rel_file,
-                                                  check_rel_folder,
-                                                  file_extension,
-                                                  copy_files,
-                                                  open_folder)
+                                                  check_rel_folder)
 from PIL import Image, ImageTk
-from tkinter.filedialog import askopenfilename, askopenfilenames
+from tkinter.filedialog import askopenfilename
 import cv2
 from modules.othermodules.globals import Globals
 
@@ -173,20 +170,6 @@ class AnimalWindow():
             command=lambda c=self.animal_id: self._set_profile_image(c))
         if self.animal_id != "":
             set_img_button.pack(side="left", anchor="c", padx=3)
-
-        # - Add images button
-        store_img_button = ttk.Button(
-            self.image_button_frame,
-            text="Add Photos",
-            command=lambda c=str(self.animal_id): self._add_images(c))
-        store_img_button.pack(side="left", anchor="c", padx=3)
-
-        # - Open images folder button
-        open_img_button = ttk.Button(
-            self.image_button_frame,
-            text="Open Photos Folder",
-            command=lambda c=str(self.animal_id): self._open_images_folder(c))
-        open_img_button.pack(side="left", anchor="c", padx=3)
 
         # - Notes items.
         # - Notes label
@@ -526,43 +509,3 @@ class AnimalWindow():
         # In rescue
         in_rescue_value = results[1][0][results[0].index('In_Rescue')]
         self.in_rescue_var.set(in_rescue_value)
-
-    def _add_images(self, animal_id):
-        animal_id = str(animal_id)
-        # Check folder exists and create if needed
-        rel_folder = 'images\\' + animal_id + '\\'
-        check_rel_folder(rel_folder, create=True)
-
-        # Ask user to pick photos:
-        Globals.root.withdraw()
-        img_list = askopenfilenames(filetypes=[(
-            "Images", "*.jpg *.jpeg *.png")])
-
-        # Bring animal window to front again
-        Globals.root.deiconify()
-        self.thumbnail_img.lift()
-        self.thumbnail_img.focus_force()
-
-        for img in img_list:
-            # get next available file name
-            fileexist = True
-            img_num = 0
-            img_extension = file_extension(img)
-            while fileexist:
-                img_name = 'IMG_' + animal_id + '_' + str(img_num)
-                rel_file = rel_folder + img_name + img_extension
-                if check_rel_file(rel_file):
-                    img_num += 1
-                else:
-                    fileexist = False
-
-            # Copy over file
-            new_path = get_full_path(rel_file)
-            copy_files(img, new_path)
-
-    def _open_images_folder(self, animal_id):
-        animal_id = str(animal_id)
-        rel_path = "images\\" + animal_id + '\\'
-        full_path = get_full_path(rel_path)
-        check_rel_folder(rel_path, create=True)
-        open_folder(full_path)
