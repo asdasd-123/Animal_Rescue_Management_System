@@ -343,17 +343,26 @@ class AnimalWindow():
             self.submit.pack(side="right", anchor="e", padx=20, pady=10)
 
     def _set_profile_image(self, animal_id):
+        # =============
+        # Fetch image
+        # =============
+        # Need to temporarily hide root window else it changes focus
+        # when asking for file name.
         Globals.root.withdraw()
-        # return
+
+        # Ask for file
         new_image_loc = askopenfilename(filetypes=[(
             "Images", "*.jpg *.jpeg *.png")])
 
-        # Bring animal window to front again
+        # Bring animal window to front again and unhide root window
         Globals.root.deiconify()
         self.thumbnail_img.lift()
         self.thumbnail_img.focus_force()
 
-        img = cv2.imread(new_image_loc)
+        # =============
+        # Resize image to 300px in largest dimension
+        # =============
+        img = cv2.imread(new_image_loc)     # load image into variable
 
         # Get new width and height
         w = img.shape[1]
@@ -370,11 +379,17 @@ class AnimalWindow():
         # Set new image
         new_img = cv2.resize(img, dimension, interpolation=cv2.INTER_AREA)
 
+        # =============
+        # Store image and update on window
+        # =============
         # get path of new image
-        rel_path = 'images\\'
-        rel_path += str(self.animal_id) + '\\thumbnail\\thumbnail.png'
-        rel_folder = 'images\\' + str(self.animal_id) + '\\thumbnail\\'
+        rel_path = 'images\\thumbnails\\'
+        rel_path += str(self.animal_id) + '.png'
+        rel_folder = 'images\\thumbnails\\'
+
+        # Check folder exists. Create if not
         check_rel_folder(rel_folder, create=True)
+        # Save photo
         cv2.imwrite(rel_path, new_img, [int(cv2.IMWRITE_PNG_COMPRESSION), 0])
 
         # Update image on page
