@@ -8,10 +8,12 @@ and store asignments in DB
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.sqlitefunctions import BasicDbQuery
-from modules.othermodules.filesandfolders import (get_rel_file_list)
+from modules.othermodules.filesandfolders import (get_rel_file_list,
+                                                  get_full_path)
 from PIL import Image, ImageTk
 import tkinter as tk
 import tkinter.ttk as ttk
+from os import startfile
 
 
 class ImageTaggingWindow():
@@ -142,7 +144,9 @@ class ImageTaggingWindow():
         del_photo.pack(side="left", fill="both", expand="true",
                        padx=10, pady=10)
         open_photo = ttk.Button(self.photo_buttons_frame,
-                                text="Open", style="img.TButton")
+                                text="Open",
+                                command=lambda: self.open_file(),
+                                style="img.TButton")
         open_photo.pack_propagate(0)
         open_photo.pack(side="left", fill="both", expand="true",
                         padx=10, pady=10)
@@ -265,3 +269,9 @@ class ImageTaggingWindow():
         thumbnail_ph = ImageTk.PhotoImage(thumbnail_im)
         self.photo_frame.configure(image=thumbnail_ph)
         self.photo_frame.image = thumbnail_ph
+
+    def open_file(self):
+        """Opens current file from the viewer"""
+        path = get_full_path(self.file_list[self.current_file])
+        startfile(path)
+        
