@@ -18,10 +18,12 @@ from modules.pages.animalpage import AnimalWindow
 from modules.pages.homingpage import HomingWindow
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.medicalpopup import medical_popup
+from modules.pages.imagetaggingpage import ImageTaggingWindow
 from modules.othermodules.filesandfolders import (
     check_rel_folder, get_full_path, copy_files, check_rel_file,
     file_extension)
 from tkinter.filedialog import askopenfilenames
+
 
 class BuildMainWindow():
     """Builds the main window"""
@@ -56,6 +58,10 @@ class BuildMainWindow():
         # Title Font settings
         self.font_title = tkfont.Font(size=30, weight='bold')
 
+        # Large button writing
+        self.font_image_button = ttk.Style()
+        self.font_image_button.configure("img.TButton", font=('', 20))
+        # self.font_image_button = tkfont.Font(size=18, weight='bold')
         # Sub-headings labels
         self.font_sub_title = tkfont.Font(size=18)
 
@@ -206,6 +212,18 @@ class BuildMainWindow():
             command=self._add_images)
         import_img_button.pack(side="left", anchor="nw", padx=6)
 
+        # Tag images button
+        tag_img_button = ttk.Button(
+            self.buttons_frame,
+            text="Tag Images",
+            command=lambda: self.open_tag_photo_window())
+        tag_img_button.pack(side="left", anchor="nw", padx=6)
+
+        # Progress Bar and Label
+        self.prog_bar = ttk.Progressbar(self.buttons_frame)
+        # self.prog_bar.pack(side="right", anchor="ne", padx=6)
+        self.prog_bar_l = ttk.Label
+
         # In Rescue checkbox
         self.in_rescue_var = tk.IntVar()
         self.in_rescue = ttk.Checkbutton(self.filters_frame,
@@ -342,4 +360,8 @@ class BuildMainWindow():
             'Tag Photos?',
             "Do you want to tag the photo's now?")
         if msgbox == 'yes':
-            self.open_tag_photo_window(self)
+            self.open_tag_photo_window()
+
+    def open_tag_photo_window(self):
+        self.tagging_win = ImageTaggingWindow(tk.Toplevel(self.master),
+                                              self.conn, self)
