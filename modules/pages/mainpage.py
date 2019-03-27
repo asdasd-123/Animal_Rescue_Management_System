@@ -21,7 +21,7 @@ from modules.othermodules.medicalpopup import medical_popup
 from modules.pages.imagetaggingpage import ImageTaggingWindow
 from modules.othermodules.filesandfolders import (
     check_rel_folder, get_full_path, copy_files, check_rel_file,
-    file_extension)
+    file_extension, get_rel_file_list)
 from tkinter.filedialog import askopenfilenames
 
 
@@ -363,5 +363,11 @@ class BuildMainWindow():
             self.open_tag_photo_window()
 
     def open_tag_photo_window(self):
+        file_list = []
+        file_list = get_rel_file_list('images\\untagged\\',
+                                      return_type='paths')
+        if len(file_list) == 0:
+            tk.messagebox.showinfo('', 'No files have been found to tag')
+            return
         self.tagging_win = ImageTaggingWindow(tk.Toplevel(self.master),
                                               self.conn, self)

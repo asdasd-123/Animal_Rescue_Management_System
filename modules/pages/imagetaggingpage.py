@@ -8,6 +8,8 @@ and store asignments in DB
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.sqlitefunctions import BasicDbQuery
+from modules.othermodules.filesandfolders import (get_rel_file_list)
+from PIL import Image, ImageTk
 import tkinter as tk
 import tkinter.ttk as ttk
 
@@ -28,6 +30,12 @@ class ImageTaggingWindow():
         # Build window
         self._build_frames()
         self._build_widgets()
+
+        # Get list of images
+        self.file_list = get_rel_file_list('images\\untagged\\',
+                                           return_type='paths')
+        # Load first image
+        self._load_image(0)
 
     def _build_frames(self):
         # Right Frame
@@ -70,7 +78,7 @@ class ImageTaggingWindow():
         self.photo_buttons_frame.pack(side="bottom", fill="x")
 
         # --- Photo Frame
-        self.photo_frame = ttk.Frame(self.image_holder)
+        self.photo_frame = ttk.Label(self.image_holder)
         self.photo_frame.pack(side="top", fill="both", expand=True)
 
     def _build_widgets(self):
@@ -214,3 +222,46 @@ class ImageTaggingWindow():
 
     def close_window(self):
         self.master.destroy()
+
+    def _load_image(self, num):
+        # Check if any images are present first.
+        if len(self.file_list) == 0:
+            return
+
+        # To keep track of current photo when deleting/tagging
+        self.current_file = num
+        current_img = self.file_list[num]
+
+        # Get frame width and height.
+        self.photo_frame.update()
+        w = self.photo_frame.winfo_width()
+        h = self.photo_frame.winfo_height()
+
+        # load new photo
+        thumbnail_im = Image.open(current_img)
+
+        # =============
+        # Resize image to 300px in largest dimension
+        # =============
+        # Get new width and height
+        old_w = thumbnail_im.width
+        old_h = thumbnail_im.height
+        dimension = (old_w, old_h)
+
+        if old_w > w or old_h > h:
+            # Check if it needs resizing
+            if w <= h:
+                max_dimension = h
+                nw = int(round(w / h * max_dimension, 0))
+                nh = max_dimension
+            else:
+                max_dimension = w
+                nh = int(round(h / w * max_dimension, 0))
+                nw = max_dimension
+            dimension = (nw, nh)
+
+        # Update image on page
+        thumbnail_im = thumbnail_im.resize(dimension, Image.ANTIALIAS)
+        thumbnail_ph = ImageTk.PhotoImage(thumbnail_im)
+        self.photo_frame.configure(image=thumbnail_ph)
+        self.photo_frame.image = thumbnail_ph
