@@ -44,3 +44,30 @@ def copy_files(source_path, dest_path):
 
 def open_folder(path):
     os.startfile(path)
+
+
+def get_rel_file_list(folder_path, return_type='files'):
+    """
+    Accepts a relative folder path
+    return_type = files     - List of files
+    return_type = paths     - List of path+file names
+    """
+    full_path = os.path.join(sys.path[0], folder_path)
+    results = os.listdir(full_path)
+    if return_type == 'paths':
+        for index, item in enumerate(results):
+            results[index] = os.path.join(folder_path, item)
+    return results
+
+
+def get_file_list(full_folder_path, return_type='files'):
+    """
+    Accepts a full folder path
+    return_type = files     - List of files
+    return_type = paths     - List of path+file names
+    """
+    results = os.listdir(full_folder_path)
+    if return_type == 'paths':
+        for index, item in enumerate(results):
+            results[index] = os.path.join(full_folder_path, item)
+    return results
