@@ -22,6 +22,7 @@ class ImageTaggingWindow():
         self.master = master
         self.conn = conn
         self.main_win = main_win
+        self.current_file = 0
         self.animal_dict = {}       # Dictionary of row IDs and animal ID's
         #                             for adding animals to the list.
 
@@ -128,8 +129,11 @@ class ImageTaggingWindow():
         # =============
         # Photo buttons frame
         # =============
-        previous_button = ttk.Button(self.photo_buttons_frame,
-                                     text="<-----", style="img.TButton")
+        previous_button = ttk.Button(
+            self.photo_buttons_frame,
+            text="<-----",
+            command=lambda c=(self.current_file - 1): self._load_image(c),
+            style="img.TButton")
         previous_button.pack_propagate(0)
         previous_button.pack(side="left", fill="both", expand="true",
                              padx=10, pady=10)
@@ -150,8 +154,11 @@ class ImageTaggingWindow():
         open_photo.pack_propagate(0)
         open_photo.pack(side="left", fill="both", expand="true",
                         padx=10, pady=10)
-        next_button = ttk.Button(self.photo_buttons_frame,
-                                 text="----->", style="img.TButton")
+        next_button = ttk.Button(
+            self.photo_buttons_frame,
+            text="----->",
+            command=lambda c=(self.current_file + 1): self._load_image(c),
+            style="img.TButton")
         next_button.pack_propagate(0)
         next_button.pack(side="left", fill="both", expand="true",
                          padx=10, pady=10)
@@ -228,12 +235,18 @@ class ImageTaggingWindow():
         self.master.destroy()
 
     def _load_image(self, num):
+        self.current_file = num
         # Check if any images are present first.
         if len(self.file_list) == 0:
             return
 
+        # Check if requested file it outside of range
+        if num < 0:
+            next_file_num = (len(self.file_list) - 1)
+            self._load_image(next_file_num)
+            return
+
         # To keep track of current photo when deleting/tagging
-        self.current_file = num
         current_img = self.file_list[num]
 
         # Get frame width and height.
@@ -254,13 +267,13 @@ class ImageTaggingWindow():
 
         if old_w > w or old_h > h:
             # Check if it needs resizing
-            if w <= h:
+            if old_w <= old_h:
                 max_dimension = h
-                nw = int(round(w / h * max_dimension, 0))
+                nw = int(round(old_w / old_h * max_dimension, 0))
                 nh = max_dimension
             else:
                 max_dimension = w
-                nh = int(round(h / w * max_dimension, 0))
+                nh = int(round(old_h / old_w * max_dimension, 0))
                 nw = max_dimension
             dimension = (nw, nh)
 
