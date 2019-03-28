@@ -10,10 +10,12 @@ from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.sqlitefunctions import BasicDbQuery
 from modules.othermodules.filesandfolders import (
     get_rel_file_list, get_full_path, file_extension)
+from modules.othermodules.globals import Globals
 from PIL import Image, ImageTk
 import tkinter as tk
 import tkinter.ttk as ttk
 from os import startfile
+from os import remove as remove_file
 import subprocess
 
 
@@ -144,7 +146,9 @@ class ImageTaggingWindow():
         tag_photo.pack(side="left", fill="both", expand="true",
                        padx=10, pady=10)
         del_photo = ttk.Button(self.photo_buttons_frame,
-                               text="Delete", style="img.TButton")
+                               text="Delete",
+                               command=lambda: self._delete_file(),
+                               style="img.TButton")
         del_photo.pack_propagate(0)
         del_photo.pack(side="left", fill="both", expand="true",
                        padx=10, pady=10)
@@ -309,3 +313,28 @@ class ImageTaggingWindow():
         else:
             path_string = 'explorer /select,"' + path + '"'
             subprocess.Popen(path_string)
+
+    def _delete_file(self):
+        """Deletes the current file from the unsorted folder"""
+        # Need to temporarily hide root window else it changes focus
+        # when asking for file name.
+        Globals.root.withdraw()
+        
+        # Ask if user wants to delete the file
+        msgbox = tk.messagebox.askquestion(
+            'Confirmation',
+            'Are you sure you want to delete this file?')
+        
+        # Bring animal window to front again and unhide root window
+        Globals.root.deiconify()
+        self.photo_frame.lift()
+        self.photo_frame.focus_force()
+        
+        # If yes, remove file and pop from file list.
+        if msgbox == 'yes':
+            path = get_full_path(self.file_list[self.current_file])
+            remove_file(path)
+            self.file_list.remove(self.file_list[self.current_file])
+            self._load_image(self.current_file - 1)
+
+        
