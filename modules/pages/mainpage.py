@@ -337,7 +337,7 @@ class BuildMainWindow():
 
         # Ask user to pick photos:
         img_list = askopenfilenames(filetypes=[(
-            "Images", "*.jpg *.jpeg *.png")])
+            "Media", "*.jpg *.jpeg *.png *.mp4 *.flv *.avi")])
 
         for img in img_list:
             # get next available file name

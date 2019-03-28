@@ -8,12 +8,13 @@ and store asignments in DB
 from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.sqlitefunctions import BasicDbQuery
-from modules.othermodules.filesandfolders import (get_rel_file_list,
-                                                  get_full_path)
+from modules.othermodules.filesandfolders import (
+    get_rel_file_list, get_full_path, file_extension)
 from PIL import Image, ImageTk
 import tkinter as tk
 import tkinter.ttk as ttk
 from os import startfile
+import subprocess
 
 
 class ImageTaggingWindow():
@@ -258,8 +259,20 @@ class ImageTaggingWindow():
         w = self.photo_frame.winfo_width()
         h = self.photo_frame.winfo_height()
 
-        # load new photo
-        thumbnail_im = Image.open(current_img)
+        # ============
+        # Check if image or video or other.
+        # And load image accordingly
+        # ============
+        extension = file_extension(current_img).upper()
+        if extension in ('.JPG', '.JPEG', '.PNG'):
+            self.file_type = 'Image'
+            thumbnail_im = Image.open(current_img)
+        elif extension in ('.AVI', '.MP4', '.FLV', '.MP4', '.MPEG'):
+            self.file_type = 'Video'
+            thumbnail_im = Image.open('images\\defaults\\Video.png')
+        else:
+            self.file_type = 'Unknown'
+            thumbnail_im = Image.open('images\\defaults\\Unknown.png')
 
         # =============
         # Resize image to 300px in largest dimension
@@ -286,8 +299,13 @@ class ImageTaggingWindow():
         thumbnail_ph = ImageTk.PhotoImage(thumbnail_im)
         self.photo_frame.configure(image=thumbnail_ph)
         self.photo_frame.image = thumbnail_ph
+        self.photo_frame.update()   # Seems to make it a bit 'snappier'
 
     def open_file(self):
         """Opens current file from the viewer"""
         path = get_full_path(self.file_list[self.current_file])
-        startfile(path)
+        if self.file_type in ('Image', 'Video'):
+            startfile(path)
+        else:
+            path_string = 'explorer /select,"' + path + '"'
+            subprocess.Popen(path_string)
