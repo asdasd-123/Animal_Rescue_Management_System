@@ -132,7 +132,7 @@ class ImageTaggingWindow():
         previous_button = ttk.Button(
             self.photo_buttons_frame,
             text="<-----",
-            command=lambda c=(self.current_file - 1): self._load_image(c),
+            command=lambda: self._load_image(self.current_file - 1),
             style="img.TButton")
         previous_button.pack_propagate(0)
         previous_button.pack(side="left", fill="both", expand="true",
@@ -157,7 +157,7 @@ class ImageTaggingWindow():
         next_button = ttk.Button(
             self.photo_buttons_frame,
             text="----->",
-            command=lambda c=(self.current_file + 1): self._load_image(c),
+            command=lambda: self._load_image(self.current_file + 1),
             style="img.TButton")
         next_button.pack_propagate(0)
         next_button.pack(side="left", fill="both", expand="true",
@@ -245,6 +245,10 @@ class ImageTaggingWindow():
             next_file_num = (len(self.file_list) - 1)
             self._load_image(next_file_num)
             return
+        elif num > len(self.file_list) - 1:
+            next_file_num = 0
+            self._load_image(next_file_num)
+            return
 
         # To keep track of current photo when deleting/tagging
         current_img = self.file_list[num]
@@ -287,4 +291,3 @@ class ImageTaggingWindow():
         """Opens current file from the viewer"""
         path = get_full_path(self.file_list[self.current_file])
         startfile(path)
-        

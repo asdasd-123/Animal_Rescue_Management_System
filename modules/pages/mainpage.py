@@ -364,7 +364,7 @@ class BuildMainWindow():
 
     def open_tag_photo_window(self):
         file_list = []
-        
+
         check_rel_folder('images\\untagged\\', create=True)
         file_list = get_rel_file_list('images\\untagged\\',
                                       return_type='paths')
