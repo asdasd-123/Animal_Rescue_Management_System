@@ -243,6 +243,8 @@ class ImageTaggingWindow():
         self.current_file = num
         # Check if any images are present first.
         if len(self.file_list) == 0:
+            tk.messagebox.showinfo('', 'There are no files to Tag')
+            self.master.destroy()
             return
 
         # Check if requested file it outside of range
@@ -319,22 +321,20 @@ class ImageTaggingWindow():
         # Need to temporarily hide root window else it changes focus
         # when asking for file name.
         Globals.root.withdraw()
-        
+
         # Ask if user wants to delete the file
         msgbox = tk.messagebox.askquestion(
             'Confirmation',
             'Are you sure you want to delete this file?')
-        
+
         # Bring animal window to front again and unhide root window
         Globals.root.deiconify()
         self.photo_frame.lift()
         self.photo_frame.focus_force()
-        
+
         # If yes, remove file and pop from file list.
         if msgbox == 'yes':
             path = get_full_path(self.file_list[self.current_file])
             remove_file(path)
             self.file_list.remove(self.file_list[self.current_file])
             self._load_image(self.current_file - 1)
-
-        
