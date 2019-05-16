@@ -9,13 +9,15 @@ from modules.othermodules.tk_window import CenterWindow
 from modules.othermodules.treebuild import TreeBuild
 from modules.othermodules.sqlitefunctions import BasicDbQuery
 from modules.othermodules.filesandfolders import (
-    get_rel_file_list, get_full_path, file_extension)
+    get_rel_file_list, get_full_path, file_extension, check_folder,
+    check_rel_file, copy_files)
 from modules.othermodules.globals import Globals
 from PIL import Image, ImageTk
 import tkinter as tk
 import tkinter.ttk as ttk
 from os import startfile
 from os import remove as remove_file
+import os.path
 import subprocess
 
 
@@ -140,8 +142,11 @@ class ImageTaggingWindow():
         previous_button.pack_propagate(0)
         previous_button.pack(side="left", fill="both", expand="true",
                              padx=10, pady=10)
-        tag_photo = ttk.Button(self.photo_buttons_frame,
-                               text="Tag", style="img.TButton")
+        tag_photo = ttk.Button(
+            self.photo_buttons_frame,
+            text="Tag",
+            command=lambda: self.tag_photo(),
+            style="img.TButton")
         tag_photo.pack_propagate(0)
         tag_photo.pack(side="left", fill="both", expand="true",
                        padx=10, pady=10)
@@ -316,25 +321,112 @@ class ImageTaggingWindow():
             path_string = 'explorer /select,"' + path + '"'
             subprocess.Popen(path_string)
 
-    def _delete_file(self):
+    def _delete_file(self, warn=True):
         """Deletes the current file from the unsorted folder"""
         # Need to temporarily hide root window else it changes focus
         # when asking for file name.
-        Globals.root.withdraw()
+        # Asign msgbox:
+        msgbox = ''
+        if warn is True:
+            Globals.root.withdraw()
 
-        # Ask if user wants to delete the file
-        msgbox = tk.messagebox.askquestion(
-            'Confirmation',
-            'Are you sure you want to delete this file?')
+            # Ask if user wants to delete the file
+            msgbox = tk.messagebox.askquestion(
+                'Confirmation',
+                'Are you sure you want to delete this file?')
 
-        # Bring animal window to front again and unhide root window
-        Globals.root.deiconify()
-        self.photo_frame.lift()
-        self.photo_frame.focus_force()
+            # Bring animal window to front again and unhide root window
+            Globals.root.deiconify()
+            self.photo_frame.lift()
+            self.photo_frame.focus_force()
 
         # If yes, remove file and pop from file list.
-        if msgbox == 'yes':
+        if msgbox == 'yes' or warn is False:
             path = get_full_path(self.file_list[self.current_file])
             remove_file(path)
             self.file_list.remove(self.file_list[self.current_file])
             self._load_image(self.current_file - 1)
+
+    def tag_photo(self):
+        # Get current photo
+        path = self.file_list[self.current_file]
+        current_file = self.file_list[self.current_file]
+        path = os.path.basename(path)
+
+        # Get number of animals to tag it to.
+        no_of_animals = len(self.animal_dict.values())
+        if no_of_animals == 0:
+            # Need to temporarily hide root window else it changes focus
+            # when asking for file name.
+            Globals.root.withdraw()
+            tk.messagebox.showinfo(
+                "",
+                "No animals selected. Select one before continuing.")
+
+            # Bring animal window to front again and unhide root window
+            Globals.root.deiconify()
+            self.photo_frame.lift()
+            self.photo_frame.focus_force()
+            return
+
+        # if only one animal, copy file then instantly delete
+        elif no_of_animals == 1:
+            # Fetch selected animal
+            animal_id = next(iter(self.animal_dict.values()))
+
+            # Check if folder setup for this animal and create if needed.
+            new_folder = get_full_path(f'images\\stored\\{animal_id}\\')
+            check_folder(new_folder, create=True)
+            new_file_path = os.path.join(new_folder, path)
+
+            # Check if file name exists already
+            if os.path.isfile(new_file_path):
+                fileexist = True
+                img_num = 0
+                img_extension = file_extension(path)
+                while fileexist:
+                    img_name = 'IMG_' + str(img_num)
+                    rel_file = new_folder + img_name + img_extension
+                    if check_rel_file(rel_file):
+                        img_num += 1
+                    else:
+                        fileexist = False
+
+                # Copy over file
+                new_path = get_full_path(rel_file)
+                copy_files(new_file_path, new_path)
+            else:
+                copy_files(current_file, new_folder)
+
+            self._delete_file(warn=False)
+
+        # If more than 1, copy then delete. Else use 'move'
+        elif no_of_animals > 1:
+            # Fetch selected animal
+            animal_id_list = list(self.animal_dict.values())
+            for animal_id in animal_id_list:
+                # Check if folder setup for this animal and create if needed.
+                new_folder = get_full_path(f'images\\stored\\{animal_id}\\')
+                check_folder(new_folder, create=True)
+                new_file_path = os.path.join(new_folder, path)
+
+                # Check if file name exists already
+                if os.path.isfile(new_file_path):
+                    fileexist = True
+                    img_num = 0
+                    img_extension = file_extension(path)
+                    while fileexist:
+                        img_name = 'IMG_' + str(img_num)
+                        rel_file = new_folder + img_name + img_extension
+                        if check_rel_file(rel_file):
+                            img_num += 1
+                        else:
+                            fileexist = False
+
+                    # Copy over file
+                    new_path = get_full_path(rel_file)
+                    copy_files(new_file_path, new_path)
+                else:
+                    copy_files(current_file, new_folder)
+
+            self._delete_file(warn=False)
